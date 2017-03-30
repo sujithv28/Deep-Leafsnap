@@ -1,6 +1,9 @@
 # Deep-LeafSnap
 LeafSnap replicated using deep neural networks to test accuracy compared to traditional computer vision methods.
 
+## Files
+`model_filtered.py` trains a convolutional neural network on solely the lab images.
+`fix_data.py` is incomplete as of now but the goal is to normalize all the images in the dataset to the same orientation and size.
 
 ## Installation
 To run the models and code make sure you [Python](https://www.python.org/downloads/) installed. 
@@ -30,3 +33,9 @@ python
 import cv2
 ```
 Download Leafsnap's image data from [here](http://leafsnap.com/dataset/) and extract it to the main directory by running in the directory.
+
+## Training Model
+To train the model, run
+```
+python model_filtered.py
+```
