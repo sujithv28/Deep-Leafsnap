@@ -26,17 +26,12 @@ print('\n[INFO] Loading Dataset:')
 columns = ['file_id', 'image_pat', 'segmented_path', 'species', 'source']
 data = pd.read_csv(DATA_FILE, names=columns, header=1)
 
-lab_data = data.drop(data[data['image_pat'].str.contains("field")].index)
-field_data = data.drop(data[data['image_pat'].str.contains("lab")].index)
-# lab_data = [~data['image_pat'].str.contains("field")]
-# field_data = [~data['image_pat'].str.contains("lab")]
-
-images = lab_data['image_pat']
-species = lab_data['species']
+images = data['image_pat']
+species = data['species']
 
 print('\n[INFO] Creating Training and Testing Data:')
 images_train, images_validation, species_train, species_validation = train_test_split(
-    images, species, test_size=0.15, random_state=42)
+    images, species, test_size=0.25, random_state=42)
 
 species_train = np_utils.to_categorical(species_train)
 species_validation = np_utils.to_categorical(species_validation)
