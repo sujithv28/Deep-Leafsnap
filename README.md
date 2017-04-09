@@ -3,10 +3,10 @@ LeafSnap replicated using deep neural networks to test accuracy compared to trad
 
 ## Files
 * `model_filtered.py` trains a convolutional neural network on solely the lab images.
-* `fix_data.py` is incomplete as of now but the goal is to normalize all the images in the dataset to the same orientation and size.
+* `standardize_data.py` is incomplete as of now but the goal is to normalize all the images in the dataset to the same orientation and size.
 
 ## Installation
-To run the models and code make sure you [Python](https://www.python.org/downloads/) installed. 
+To run the models and code make sure you [Python](https://www.python.org/downloads/) installed.
 
 Install Tensorflow following the instructions [here](https://www.tensorflow.org/install/).
 
