@@ -9,9 +9,9 @@ import tensorflow as tf
 tf.python.control_flow_ops = tf
 
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout, ELU, Flatten, Lambda
-from keras.optimizers import Adam
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.core import Flatten, Dense, Dropout, Lambda
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
+from keras.optimizers import SGD
 from PIL import Image
 from keras.utils import np_utils
 from sklearn.model_selection import train_test_split
@@ -112,7 +112,9 @@ learning_rate = 1e-4
 
 def VGG_16(weights_path=None):
     model = Sequential()
-    model.add(ZeroPadding2D((1,1),input_shape=(3,224,224)))
+    model.add(Lambda(lambda x: x/127.5-1.0, input_shape=(224,224,3)))
+
+    model.add(ZeroPadding2D((1,1)))
     model.add(Convolution2D(64, 3, 3, activation='relu'))
     model.add(ZeroPadding2D((1,1)))
     model.add(Convolution2D(64, 3, 3, activation='relu'))
@@ -151,15 +153,17 @@ def VGG_16(weights_path=None):
     model.add(Flatten())
     model.add(Dense(4096, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(4096, activation='relu'))
+    model.add(Dense(2048, activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(1000, activation='softmax'))
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(185, activation='softmax'))
 
     if weights_path:
         model.load_weights(weights_path)
     return model
 
-nb_epoch = 20
+nb_epoch = 15
 
 samples_per_epoch = 4 * len(images_train)
 generator_train = batch_generator(images_train, species_train)
