@@ -34,6 +34,8 @@ import cv2
 ```
 Download Leafsnap's image data from [here](http://leafsnap.com/dataset/) and extract it to the main directory by running in the directory.
 
+Download the VGG model weights from [here](https://drive.google.com/file/d/0Bz7KyqmuGsilT0J5dmRCM0ROVHc/view).
+
 ## Training Model
 To train the model, run
 ```

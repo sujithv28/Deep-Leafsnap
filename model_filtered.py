@@ -72,7 +72,7 @@ def batch_generator(images, species, batch_size=64, augment_data=True):
                 original_image = rotate_bound(original_image, 90)
 
             # Resize all the images to the same size
-            rotated_image = scipy.misc.imresize(rotated_image, (64,64))
+            rotated_image = scipy.misc.imresize(rotated_image, (224,224))
             original_image = original_image / 255
             normal_species = species[i]
 
@@ -110,20 +110,53 @@ def batch_generator(images, species, batch_size=64, augment_data=True):
 activation_relu = 'relu'
 learning_rate = 1e-4
 
-def create_model():
-    # create model
+def VGG_16(weights_path=None):
     model = Sequential()
-    model.add(Convolution2D(30, 5, 5, border_mode='valid', input_shape=(1, 62, 62), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Convolution2D(15, 3, 3, activation=activation_relu))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.2))
+    model.add(ZeroPadding2D((1,1),input_shape=(3,224,224)))
+    model.add(Convolution2D(64, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(64, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(128, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(128, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
     model.add(Flatten())
-    model.add(Dense(128, activation=activation_relu))
-    model.add(Dense(50, activation=activation_relu))
-    model.add(Dense(num_classes, activation='softmax'))
-    # Compile model
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate), metrics=['accuracy'])
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(1000, activation='softmax'))
+
+    if weights_path:
+        model.load_weights(weights_path)
     return model
 
 nb_epoch = 20
@@ -135,13 +168,16 @@ nb_val_samples = len(images_validation)
 generator_validation = batch_generator(images_validation, species_validation, augment_data=False)
 
 print('\n[INFO] Creating Model:')
-model = create_model()
+model = VGG_16('vgg16_weights.h5')
+sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+model.compile(optimizer=sgd, loss='categorical_crossentropy')
+
 print('\n[INFO] Training Model:')
 model.fit_generator(generator_train,
-                      samples_per_epoch=samples_per_epoch,
-                      nb_epoch=nb_epoch,
-                      validation_data=generator_validation,
-                      nb_val_samples=nb_val_samples)
+                    samples_per_epoch=samples_per_epoch,
+                    nb_epoch=nb_epoch,
+                    validation_data=generator_validation,
+                    nb_val_samples=nb_val_samples)
 
 model.save_weights('model.h5', True)
 with open('model.json', 'w') as outfile:

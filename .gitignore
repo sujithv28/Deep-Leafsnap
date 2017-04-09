@@ -3,3 +3,4 @@ dataset/
 leafsnap-dataset-images.txt
 leafsnap-dataset-readme.txt
 .ipynb_checkpoints/
+*.h5
