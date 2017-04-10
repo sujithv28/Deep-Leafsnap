@@ -19,7 +19,6 @@ from keras.callbacks import ModelCheckpoint
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
-from sklearn.preprocessing import LabelEncoder
 from scipy import stats, integrate
 
 # GLOBAL CONSTANTS
@@ -32,16 +31,25 @@ print('\n[INFO] Loading Dataset:')
 columns = ['file_id', 'image_pat', 'segmented_path', 'species', 'source']
 data = pd.read_csv(DATA_FILE, names=columns, header=1)
 
-print('\n[INFO] Creating Training and Testing Data (75-25 Split):')
-images_train, images_validation, species_train, species_validation = train_test_split(
+print('\n[INFO] Creating Training, Validation, and Testing Data (75-15-10 Split):')
+X_train, images_rest, y_train, species_rest = train_test_split(
     data['image_pat'], data['species'], test_size=0.25, random_state=42)
+# Divide the remaining 25% into validation and testing (60-40)
+X_validation, X_test, y_validation, y_test = train_test_split(
+    images_rest, species_rest, test_size=0.4, random_state=42)
 
-encoder = LabelEncoder()
-encoder.fit(species_train)
-species_train = encoder.transform(species_train)
-species_train = np_utils.to_categorical(species_train)
-species_validation = encoder.transform(species_validation)
-species_validation = np_utils.to_categorical(species_validation)
+encoder = preprocessing.LabelEncoder()
+encoder.fit(y_train)
+classes = encoder.classes_
+
+y_train = encoder.transform(y_train)
+y_train = np_utils.to_categorical(y_train)
+
+y_validation = encoder.transform(y_validation)
+y_validation = np_utils.to_categorical(y_validation)
+
+y_test = encoder.transform(y_test)
+y_test = np_utils.to_categorical(y_test)
 
 # Rotates an image 90 degrees
 def check_and_rotate(image, angle):
@@ -148,10 +156,10 @@ def VGG_16():
     return model
 
 print('\n[INFO] Generating training and validation batches')
-steps_per_epoch = 4 * len(images_train)
-generator_train = batch_generator(images_train, species_train, augment_data=True)
-validation_steps = len(images_validation)
-generator_validation = batch_generator(images_validation, species_validation, augment_data=False)
+steps_per_epoch = 4 * len(X_train)
+generator_train = batch_generator(X_train, y_train, augment_data=True)
+validation_steps = len(X_validation)
+generator_validation = batch_generator(X_validation, y_validation, augment_data=False)
 
 print('\n[INFO] Creating Model:')
 model = VGG_16()
@@ -178,6 +186,6 @@ with open('vgg_model.json', 'w') as outfile:
 print('[INFO] Loading the best model...')
 model = load_model(best_model_file)
 
-# score = model.evaluate(X_validation, y_validation, verbose=0)
-# print('Test loss:', score[0])
-# print('Test accuracy:', score[1])
+score = model.evaluate(X_test, y_test, verbose=1)
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
