@@ -8,7 +8,7 @@ import tensorflow as tf
 tf.python.control_flow_ops = tf
 
 from keras.models import Sequential
-from keras.applications.vgg16 import VGG16,preprocess_input
+from keras.applications.vgg16 import VGG16, preprocess_input
 from keras.layers.core import Flatten, Dense, Dropout, Lambda
 from keras.layers import Input
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
