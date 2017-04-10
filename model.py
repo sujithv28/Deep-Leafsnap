@@ -222,9 +222,22 @@ with open('vgg_model.json', 'w') as outfile:
 print('[INFO] Loading the best model...')
 model = load_model(best_model_file)
 
-score = model.evaluate(X_test, y_test, verbose=1)
+batch_X = []
+batch_Y = []
+indices = np.arange(len(batch_X))
+np.random.shuffle(indices)
+sample_count = 0
+for i in indices:
+    path = X_test.iloc[i]
+    original_species = y_test[i]
+    image = load_image_and_preprocess(path)
+    batch_X.append(image)
+    batch_Y.append(original_species)
+    sample_count += 1
+
+score = model.evaluate(batch_X, batch_Y, verbose=1)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
-print('[INFO] Prediction:')
-print(model.predict_classes(X_test))
+print('[INFO] Prediction on %d examples:' % (sample_count))
+print(model.predict_classes(batch_X))
