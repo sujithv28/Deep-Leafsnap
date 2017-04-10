@@ -1,5 +1,5 @@
 # Deep-LeafSnap
-LeafSnap replicated using deep neural networks to test accuracy compared to traditional computer vision methods.
+LeafSnap replicated using deep neural networks to test accuracy compared to traditional computer vision methods. Model is built off VGG 16 for ImageNet.
 
 ## Files
 * `model.py` trains a convolutional neural network on the dataset.
@@ -9,20 +9,29 @@ To run the models and code make sure you [Python](https://www.python.org/downloa
 
 Install Tensorflow following the instructions [here](https://www.tensorflow.org/install/).
 
+Clone the repo onto your local machine and cd into the directory.
+```
+git clone https://github.com/sujithv28/Deep-LeafSnap.git
+cd Deep-LeafSnap
+```
+
 Install all the python dependencies:
 ```
 pip install -r requirements.txt
 ```
 Set Keras to use Tensorflow as backend:
 ```
+python
+import keras
+quit()
 nano ~/.keras/keras.json
 ```
 Change your values to look something like:
 ```
 {
-    "image_dim_ordering": "tf", 
-    "epsilon": 1e-07, 
-    "floatx": "float32", 
+    "image_dim_ordering": "tf",
+    "epsilon": 1e-07,
+    "floatx": "float32",
     "backend": "tensorflow"
 }
 ```
