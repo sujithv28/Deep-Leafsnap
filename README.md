@@ -19,6 +19,11 @@ Install all the python dependencies:
 ```
 pip install -r requirements.txt
 ```
+Make sure Keras and sklearn are updated to the latest version.
+```
+pip install --upgrade keras
+pip install --upgrade sklearn
+```
 Set Keras to use Tensorflow as backend:
 ```
 python
