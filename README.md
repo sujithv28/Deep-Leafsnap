@@ -5,7 +5,7 @@ LeafSnap replicated using deep neural networks to test accuracy compared to trad
 * `model.py` trains a convolutional neural network on the dataset.
 * `Visualize-Leaf-Data.ipynb` is a jupyter notebook that explains the code.
 * `leafsnap-dataset-images.csv` is the CSV file corresponding to the dataset.
-* `requirements.txt' contains the pip requirements to run the code.
+* `requirements.txt` contains the pip requirements to run the code.
 
 ## Installation
 To run the models and code make sure you [Python](https://www.python.org/downloads/) installed.
