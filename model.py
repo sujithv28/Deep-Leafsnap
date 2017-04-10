@@ -24,6 +24,7 @@ from scipy import stats, integrate
 DATA_FILE = 'leafsnap-dataset-images.csv'
 NUM_CLASSES = 185
 NB_EPOCH = 50
+INPUT_SIZE = 64
 VGG_WEIGHTS_FILE = 'vgg16_weights.h5'
 
 print('\n[INFO] Loading Dataset:')
@@ -80,7 +81,7 @@ def load_image_and_preprocess(path, flip_left_right=False, flip_up_down=False, r
     # Convert the image into mulitdimensional matrix of float values (normally int which messes up our division).
     image = np.array(image, np.float32)
     # Resize Image
-    image = scipy.misc.imresize(image, (224,224))
+    image = scipy.misc.imresize(image, (INPUT_SIZE,INPUT_SIZE))
     # Return the modified image.
     return image
 
@@ -137,7 +138,7 @@ def CNN_Model():
 
     model = Sequential()
 
-    model.add(Lambda(lambda x: x / 1.0, input_shape=(224, 224, 3)))
+    model.add(Lambda(lambda x: x / 1.0, input_shape=(INPUT_SIZE, INPUT_SIZE, 3)))
     model.add(Convolution2D(24, (5, 5), border_mode='same', subsample=(2, 2)))
     model.add(Activation(activation_relu))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
@@ -174,7 +175,7 @@ def VGG_16():
     for layer in base_model.layers:
         layer.trainable = False
 
-    input = Input(shape=(224,224,3),name = 'image_input')
+    input = Input(shape=(INPUT_SIZE,INPUT_SIZE,3),name = 'image_input')
     output_vgg16_conv = base_model(input)
 
     x = Flatten(name='flatten')(output_vgg16_conv)
