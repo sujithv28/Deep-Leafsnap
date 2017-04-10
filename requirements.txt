@@ -5,6 +5,7 @@ keras
 pytest
 h5py
 sklearn
+scipy
 scikit_learn
 jupyter
 opencv-python
