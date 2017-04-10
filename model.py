@@ -9,8 +9,7 @@ tf.python.control_flow_ops = tf
 
 from keras.models import Sequential
 from keras.applications.vgg16 import VGG16, preprocess_input
-from keras.layers.core import Flatten, Dense, Dropout, Lambda
-from keras.layers import Input
+from keras.layers import Input, Activation, Flatten, Dense, Dropout, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.optimizers import SGD
 from keras.models import Model, load_model
@@ -162,7 +161,9 @@ def CNN_Model():
     # Next, 3 fully connected layers
     model.add(Flatten())
     model.add(Dense(1164, activation=activation_relu))
+    model.add(Dropout(0.5))
     model.add(Dense(582, activation=activation_relu))
+    model.add(Dropout(0.5))
     model.add(Dense(185, activation='softmax'))
 
     return model
@@ -197,7 +198,7 @@ validation_steps = len(X_validation)
 generator_validation = batch_generator(X_validation, y_validation, augment_data=False)
 
 print('\n[INFO] Creating Model:')
-model = VGG_16()
+model = CNN_Model()
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(optimizer=sgd, loss='categorical_crossentropy')
 print(model.summary())
