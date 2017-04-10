@@ -13,8 +13,9 @@ from keras.layers.core import Flatten, Dense, Dropout, Lambda
 from keras.layers import Input
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.optimizers import SGD
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.utils import np_utils
+from keras.callbacks import ModelCheckpoint
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
@@ -159,18 +160,24 @@ sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(optimizer=sgd, loss='categorical_crossentropy')
 print(model.summary())
 
+best_model_file = "vgg_model.h5"
+best_model = ModelCheckpoint(best_model_file, monitor='val_loss', verbose=1, save_best_only=True)
+
 print('\n[INFO] Training Model:')
 history = model.fit_generator(generator_train,
                               steps_per_epoch=steps_per_epoch,
                               nb_epoch=NB_EPOCH,
                               validation_data=generator_validation,
-                              validation_steps=validation_steps)
+                              validation_steps=validation_steps,
+                              verbose=0,
+                              callbacks=[best_model])
 
-model.save_weights('vgg_model.h5', True)
+print('[INFO] Saving the best model...')
 with open('vgg_model.json', 'w') as outfile:
     json.dump(model.to_json(), outfile)
 
-print(history)
+print('[INFO] Loading the best model...')
+model = load_model(best_model_file)
 
 # score = model.evaluate(X_validation, y_validation, verbose=0)
 # print('Test loss:', score[0])
