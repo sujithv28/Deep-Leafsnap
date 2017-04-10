@@ -48,7 +48,13 @@ Also make sure you have OpenCV installed either through pip or homebrew. You can
 python
 import cv2
 ```
-Download Leafsnap's image data from [here](http://leafsnap.com/dataset/) and extract it to the main directory by running in the directory.
+Download Leafsnap's image data and extract it to the main directory by running in the directory.
+Download Udacity's training data and extract it to the main directory by running in the directory.
+```
+wget https://www.dropbox.com/s/3cwc2atg1qorzg4/data.zip?dl=0
+unzip -a data.zip?dl=0
+rm data.zip?dl=0
+```
 
 ## Training Model
 To train the model, run
