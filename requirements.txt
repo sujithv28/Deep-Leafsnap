@@ -1,6 +1,3 @@
-eventlet
-Flask
-matplotlib
 numpy
 pandas
 Pillow
@@ -9,6 +6,5 @@ pytest
 h5py
 sklearn
 scikit_learn
-gevent_socketio
 jupyter
 opencv-python
