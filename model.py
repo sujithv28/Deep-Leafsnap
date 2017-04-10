@@ -180,13 +180,13 @@ def VGG_16():
 
     x = Flatten(name='flatten')(output_vgg16_conv)
     x = Dense(4096, activation='relu')(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.3)(x)
     x = Dense(2048, activation='relu')(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.3)(x)
     x = Dense(1024, activation='relu')(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.3)(x)
     x = Dense(512, activation='relu')(x)
-    x = Dropout(0.5)(x)
+    x = Dropout(0.3)(x)
     x = Dense(NUM_CLASSES, activation='softmax')(x)
 
     model = Model(input=input, output=x)
