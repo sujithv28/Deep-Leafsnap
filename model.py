@@ -157,6 +157,7 @@ print('\n[INFO] Creating Model:')
 model = VGG_16()
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(optimizer=sgd, loss='categorical_crossentropy')
+print(model.summary())
 
 print('\n[INFO] Training Model:')
 history = model.fit_generator(generator_train,
@@ -168,6 +169,8 @@ history = model.fit_generator(generator_train,
 model.save_weights('vgg_model.h5', True)
 with open('vgg_model.json', 'w') as outfile:
     json.dump(model.to_json(), outfile)
+
+print(history)
 
 # score = model.evaluate(X_validation, y_validation, verbose=0)
 # print('Test loss:', score[0])
