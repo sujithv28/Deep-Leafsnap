@@ -21,7 +21,6 @@ from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelEncoder
 from scipy import stats, integrate
-from skimage import io, img_as_float
 
 # GLOBAL CONSTANTS
 DATA_FILE = 'leafsnap-dataset-images.csv'
