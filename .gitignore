@@ -5,3 +5,4 @@ leafsnap-dataset-readme.txt
 .ipynb_checkpoints/
 *.h5
 *.json
+*.pem
