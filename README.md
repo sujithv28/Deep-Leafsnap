@@ -2,8 +2,7 @@
 LeafSnap replicated using deep neural networks to test accuracy compared to traditional computer vision methods.
 
 ## Files
-* `model.py` trains a convolutional neural network on solely the lab images.
-* `standardize_data.py` is incomplete as of now but the goal is to normalize all the images in the dataset to the same orientation and size.
+* `model.py` trains a convolutional neural network on the dataset.
 
 ## Installation
 To run the models and code make sure you [Python](https://www.python.org/downloads/) installed.

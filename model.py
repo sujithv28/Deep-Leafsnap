@@ -101,8 +101,8 @@ def batch_generator(images, species, batch_size=64, augment_data=True):
             original_species = species[i]
 
             image = load_image_and_preprocess(path)
-            batch_images.append(original_image)
-            batch_species.append(original_species)
+            batch_images.append(image)
+            batch_species.append(original_species)pipp
 
             # Add augmentation if needed. We do this because our model is only training on plai
             # images and we want as much data as possible.
