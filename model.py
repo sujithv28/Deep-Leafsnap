@@ -132,6 +132,41 @@ def batch_generator(images, species, batch_size=64, augment_data=True):
                 batch_images = []
                 batch_species = []
 
+def CNN_Model():
+    activation_relu = 'relu'
+    learning_rate = 1e-4
+
+    model = Sequential()
+
+    model.add(Lambda(lambda x: x / 1.0, input_shape=(224, 224, 3)))
+    model.add(Convolution2D(24, (5, 5), border_mode='same', subsample=(2, 2)))
+    model.add(Activation(activation_relu))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+
+    model.add(Convolution2D(36, (5, 5), border_mode='same', subsample=(2, 2)))
+    model.add(Activation(activation_relu))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+
+    model.add(Convolution2D(48, (5, 5), border_mode='same', subsample=(2, 2)))
+    model.add(Activation(activation_relu))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+
+    model.add(Convolution2D(64, (3, 3), border_mode='same', subsample=(1, 1)))
+    model.add(Activation(activation_relu))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+
+    model.add(Convolution2D(64, (3, 3), border_mode='same', subsample=(1, 1)))
+    model.add(Activation(activation_relu))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+
+    # Next, 3 fully connected layers
+    model.add(Flatten())
+    model.add(Dense(1164, activation=activation_relu))
+    model.add(Dense(582, activation=activation_relu))
+    model.add(Dense(185, activation='softmax'))
+
+    return model
+
 def VGG_16():
     base_model = VGG16(weights='imagenet', include_top=False)
 
@@ -176,7 +211,7 @@ history = model.fit_generator(generator_train,
                               nb_epoch=NB_EPOCH,
                               validation_data=generator_validation,
                               validation_steps=validation_steps,
-                              verbose=0,
+                              verbose=1,
                               callbacks=[best_model])
 
 print('[INFO] Saving the best model...')
