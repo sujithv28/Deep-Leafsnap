@@ -24,7 +24,7 @@ from scipy import stats, integrate
 # GLOBAL CONSTANTS
 DATA_FILE = 'leafsnap-dataset-images.csv'
 NUM_CLASSES = 185
-NB_EPOCH = 15
+NB_EPOCH = 50
 VGG_WEIGHTS_FILE = 'vgg16_weights.h5'
 
 print('\n[INFO] Loading Dataset:')
