@@ -189,3 +189,6 @@ model = load_model(best_model_file)
 score = model.evaluate(X_test, y_test, verbose=1)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
+
+print('[INFO] Prediction:')
+print(model.predict_classes(X_test))
