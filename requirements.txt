@@ -1,0 +1,14 @@
+eventlet
+Flask
+matplotlib
+numpy
+pandas
+Pillow
+keras
+pytest
+h5py
+sklearn
+scikit_learn
+gevent_socketio
+jupyter
+opencv-python
