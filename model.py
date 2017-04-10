@@ -204,24 +204,23 @@ sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(optimizer=sgd, loss='categorical_crossentropy')
 print(model.summary())
 
-best_model_file = "vgg_model.h5"
-best_model = ModelCheckpoint(best_model_file, monitor='val_loss', verbose=1, save_best_only=True)
+# best_model_file = "vgg_model.h5"
+# best_model = ModelCheckpoint(best_model_file, monitor='val_loss', verbose=1, save_best_only=True)
 
 print('\n[INFO] Training Model:')
 history = model.fit_generator(generator_train,
                               steps_per_epoch=steps_per_epoch,
                               nb_epoch=NB_EPOCH,
                               validation_data=generator_validation,
-                              validation_steps=validation_steps,
-                              verbose=1,
-                              callbacks=[best_model])
+                              validation_steps=validation_steps)
+model.save_weights('cnn_model.h5', True)
 
 print('[INFO] Saving the best model...')
-with open('vgg_model.json', 'w') as outfile:
+with open('cnn_model.json', 'w') as outfile:
     json.dump(model.to_json(), outfile)
 
 print('[INFO] Loading the best model...')
-model = load_model(best_model_file)
+model = load_model('cnn_model.h5')
 
 batch_X = []
 batch_Y = []
