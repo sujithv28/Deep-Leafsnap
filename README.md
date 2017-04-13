@@ -54,6 +54,11 @@ wget https://www.dropbox.com/s/3cwc2atg1qorzg4/data.zip?dl=0
 unzip -a data.zip?dl=0
 rm data.zip?dl=0
 ```
+Clean the LeafSnap data to improve the model accuracy by running:
+```
+python dataset.py
+```
+This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `224x224`.
 
 ## Training Model
 To train the model, run
