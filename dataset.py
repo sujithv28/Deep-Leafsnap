@@ -117,7 +117,7 @@ indices = [x+1 for x in indices]
 df = pd.DataFrame({'image_paths': image_paths,
 				   'species'    : image_species},
 				   index=indices)
-df.to_csv('leafset-dataset-cropped-images.csv', sep='\t')
+df.to_csv('leafsnap-dataset-cropped-images.csv', sep='\t')
 
 new_species = sorted(set(image_species))
 print('[INFO] Species: {}'.format(new_species))
