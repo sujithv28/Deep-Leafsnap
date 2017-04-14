@@ -14,6 +14,8 @@ To run the models and code make sure you [Python](https://www.python.org/downloa
 
 Install Tensorflow following the instructions [here](https://www.tensorflow.org/install/).
 
+Install PyTorch by following the directions [here](http://pytorch.org/).
+
 Clone the repo onto your local machine and cd into the directory.
 ```
 git clone https://github.com/sujithv28/Deep-LeafSnap.git
@@ -45,7 +47,6 @@ Change your values to look something like:
     "backend": "tensorflow"
 }
 ```
-Install PyTorch by following the directions [here](http://pytorch.org/).
 
 Also make sure you have OpenCV installed either through pip or homebrew. You can check if this works by running and making sure nothing complains:
 ```
@@ -64,7 +65,7 @@ To create the dataset, run
 ```
 python dataset.py
 ```
-This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `224x224`.
+This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `64x64`.
 
 ## Training Model
 To train the model, run

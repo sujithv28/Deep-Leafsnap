@@ -1,26 +1,27 @@
-import json
+import os
 import cv2
+import json
+import time
+import utils
+import shutil
+import argparse
+import numpy as np
+import pandas as pd
 import scipy.misc
 import torch
 import torchvision
-import utils
-import os
-import shutil
-import time
-import numpy as np
-import pandas as pd
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import torchvision.models as models
 import torch.nn.parallel
+import torch.optim as optim
+import torch.nn.functional as F
+import torchvision.models as models
 import torch.backends.cudnn as cudnn
 
 from torch.autograd import Variable
 from torch.utils.data import sampler
 from torchvision import datasets, transforms
-from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
 
 # GLOBAL CONSTANTS
 DATA_FILE_TRAIN = 'leafsnap-dataset-train-images.csv'
@@ -34,36 +35,9 @@ LEARNING_RATE = 1e-1
 use_cuda = torch.cuda.is_available()
 best_prec1 = 0
 
-class Model(nn.Module):
-    def __init__(self):
-        super(Model, self).__init__()
-        self.conv1 = nn.Conv2d(3, 32, 3)
-        self.conv2 = nn.Conv2d(32, 32, 3)
-        self.conv3 = nn.Conv2d(32, 64, 3)
-        self.conv4 = nn.Conv2d(64, 64, 3)
-        self.pool  = nn.MaxPool2d(2)
-        self.conv2_drop = nn.Dropout2d(p=0.3)
-        self.fc1   = nn.Linear(1600, 512)
-        self.drop  = nn.Dropout(p=0.5)
-        self.fc2   = nn.Linear(512, 185)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = self.conv2_drop(self.pool(F.relu(self.conv2(x))))
-        x = F.relu(self.conv3(x))
-        x = self.conv2_drop(self.pool(F.relu(self.conv4(x))))
-        x = x.view(-1, self.num_flat_features(x))
-        x = F.relu(self.drop(self.fc1(x)))
-        x = F.relu(self.fc2(x))
-        x = F.log_softmax(x)
-        return x
-
-    def num_flat_features(self, x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        return num_features
+parser = argparse.ArgumentParser(description='PyTorch LeafSnap Training')
+parser.add_argument('--resume', default='', type=str, metavar='PATH',
+                    help='path to latest checkpoint (default: none)')
 
 cfg = {
     'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
@@ -255,6 +229,18 @@ criterion = nn.CrossEntropyLoss()
 if use_cuda:
     criterion = criterion.cuda()
 optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
+if args.resume:
+    if os.path.isfile(args.resume):
+            print("=> loading checkpoint '{}'".format(args.resume))
+            checkpoint = torch.load(args.resume)
+            args.start_epoch = checkpoint['epoch']
+            best_prec1 = checkpoint['best_prec1']
+            model.load_state_dict(checkpoint['state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            print("=> loaded checkpoint '{}' (epoch {})"
+                  .format(args.resume, checkpoint['epoch']))
+        else:
+            print("=> no checkpoint found at '{}'".format(args.resume))
 
 print('\n[INFO] Reading Training and Testing Dataset')
 traindir = os.path.join('dataset', 'train')
@@ -274,10 +260,10 @@ train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=Tr
 val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
 
 print('\n[INFO] Training Started')
-for epoch in range(1, NUMBER_EPOCHS+1):
+for epoch in range(1, 1+1):
     adjust_learning_rate(optimizer, epoch)
     # train for one epoch
-    train(train_loader, model, criterion, optimizer, epoch)
+    # train(train_loader, model, criterion, optimizer, epoch)
 
     # evaluate on validation set
     prec1 = validate(val_loader, model, criterion)
@@ -291,9 +277,9 @@ for epoch in range(1, NUMBER_EPOCHS+1):
         'best_prec1': best_prec1,
         'optimizer' : optimizer.state_dict(),
     }, is_best)
-    print('\n[INFO] Saved Model to leafsnap_model.pth')
-    torch.save(model, 'leafsnap_model.pth')
+    # print('\n[INFO] Saved Model to leafsnap_model.pth')
+    # torch.save(model, 'leafsnap_model.pth')
 
-torch.save(model, 'leafsnap_model.pth')
+# torch.save(model, 'leafsnap_model.pth')
 
 print('\n[DONE]')
