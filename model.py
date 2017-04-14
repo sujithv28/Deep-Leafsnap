@@ -58,8 +58,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
     for i, (input, target) in enumerate(train_loader):
         # measure data loading time
         if USE_CUDA:
-            input = input.cuda()
-            target = target.cuda()
+            input = input.cuda(async=True)
+            target = target.cuda(async=True)
 
         data_time.update(time.time() - end)
 
@@ -108,8 +108,8 @@ def validate(val_loader, model, criterion):
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
         if USE_CUDA:
-            input = input.cuda()
-            target = target.cuda() #(async=True)
+            input = input.cuda(async=True)
+            target = target.cuda(async=True)
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
 
@@ -177,8 +177,7 @@ print('\n[INFO] Creating Model')
 model = densenet121()
 
 if USE_CUDA:
-#    model = torch.nn.DataParallel(model)
-    model.cuda()
+    model = torch.nn.DataParallel(model).cuda()
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))
 
