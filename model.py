@@ -221,7 +221,7 @@ data_test = datasets.ImageFolder(testdir, transforms.Compose([
             normalize]))
 
 train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=2)
-val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=True, num_workers=2)
+val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
 
 print('\n[INFO] Training Started')
 for epoch in range(1, NUMBER_EPOCHS):
