@@ -204,7 +204,7 @@ print('\n[INFO] Creating Model')
 model = Model()
 
 if torch.cuda.is_available():
-    model.features = torch.nn.DataParallel(model.features)
+#    model.features = torch.nn.DataParallel(model.features)
     model.cuda()
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))
@@ -212,7 +212,7 @@ print('\n[INFO] Model Architecture: \n{}'.format(model))
 criterion = nn.CrossEntropyLoss()
 if torch.cuda.is_available():
     criterion.cuda()
-optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
 
 print('\n[INFO] Reading Training and Testing Dataset')
 traindir = os.path.join('dataset', 'train')
@@ -248,6 +248,7 @@ for epoch in range(1, 2):
         'best_prec1': best_prec1,
         'optimizer' : optimizer.state_dict(),
     }, is_best)
+    torch.save(model, 'leafsnap_model.pth')
 
 torch.save(model, 'leafsnap_model.pth')
 
