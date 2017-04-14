@@ -34,12 +34,34 @@ NUMBER_EPOCHS = 20
 best_prec1 = 0
 
 class Model(nn.Module):
-    def __init__(self, pretrained_model):
-        self.pretrained_model = pretrained_model
-        self.last_layer = nn.Linear(1000, 185)
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(3, 16, 3)
+        self.conv2 = nn.Conv2d(16, 32, 3)
+        self.conv3 = nn.Conv2d(32, 64, 3)
+        self.pool  = nn.MaxPool2d(2)
+        self.fc1   = nn.Linear(43264, 4096)
+        self.drop  = nn.Dropout(p=0.3)
+        self.fc2   = nn.Linear(4096, 1024)
+        self.fc3   = nn.Linear(1024, 185)
 
     def forward(self, x):
-        return self.last_layer(self.pretrained_model(x))
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        x = x.view(-1, self.num_flat_features(x))
+        x = F.relu(self.drop(self.fc1(x)))
+        x = F.relu(self.drop(self.fc2(x)))
+        x = F.relu(self.fc3(x))
+        x = F.log_softmax(x)
+        return x
+
+    def num_flat_features(self, x):
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -98,7 +120,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         if i % 10 == 0:
             print('Epoch: [{0}][{1}/{2}]\t'
-                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  '\Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
@@ -179,12 +201,7 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 print('\n[INFO] Creating Model')
-model = models.vgg16()
-mod = list(model.classifier.children())
-mod.pop()
-mod.append(torch.nn.Linear(4096, 185))
-new_classifier = torch.nn.Sequential(*mod)
-model.classifier = new_classifier
+model = Model()
 
 if torch.cuda.is_available():
     model.features = torch.nn.DataParallel(model.features)
@@ -214,7 +231,7 @@ train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=Tr
 val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
 
 print('\n[INFO] Training Started')
-for epoch in range(1, NUMBER_EPOCHS):
+for epoch in range(1, 2):
     adjust_learning_rate(optimizer, epoch)
     # train for one epoch
     train(train_loader, model, criterion, optimizer, epoch)
