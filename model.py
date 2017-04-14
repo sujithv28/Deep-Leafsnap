@@ -195,8 +195,11 @@ mod.pop()
 mod.append(torch.nn.Linear(4096, 185))
 new_classifier = torch.nn.Sequential(*mod)
 model.classifier = new_classifier
+
 if torch.cuda.is_available():
+    model.features = torch.nn.DataParallel(model.features)
     model.cuda()
+
 print('\n[INFO] Model Architecture: \n{}'.format(model))
 
 criterion = nn.CrossEntropyLoss()
