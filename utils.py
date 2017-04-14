@@ -31,7 +31,7 @@ def load_image_and_preprocess(path, segmented_path):
     height,width = h,w
     # print('Height: {:3d}, Width: {:4d}\n'.format(height,width))
     ret, thresh = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     # Calculate bounding rectangles for each contour.
     rects = [cv2.boundingRect(cnt) for cnt in contours]
     if rects == []:
