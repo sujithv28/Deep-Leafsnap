@@ -33,16 +33,6 @@ NUM_CLASSES = len(species)
 NUMBER_EPOCHS = 20
 best_prec1 = 0
 
-# print('\n[INFO] Loading Training Dataset:')
-# data_train = pd.read_csv(DATA_FILE_TRAIN, names=['image_paths', 'species'], header=1)
-# images_train = data_train['image_paths'].tolist()
-# species_train = data_train['species'].tolist()
-
-# print('\n[INFO] Loading Testing Dataset:')
-# data_test = pd.read_csv(DATA_FILE_TEST, names=['image_paths', 'species'], header=1)
-# images_test = data_test['image_paths'].tolist()
-# species_test = data_test['species'].tolist()
-
 class Model(nn.Module):
     def __init__(self, pretrained_model):
         self.pretrained_model = pretrained_model
@@ -205,7 +195,7 @@ print('\n[INFO] Model Architecture: \n{}'.format(model))
 criterion = nn.CrossEntropyLoss()
 if torch.cuda.is_available():
     criterion.cuda()
-optimizer = optim.SGD(model.parameters(), lear0.1, momentum=0.9, weight_decay=1e-4)
+optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
 
 print('\n[INFO] Reading Training and Testing Dataset')
 traindir = os.path.join('dataset', 'train')
@@ -241,5 +231,7 @@ for epoch in range(1, NUMBER_EPOCHS):
         'best_prec1': best_prec1,
         'optimizer' : optimizer.state_dict(),
     }, is_best)
+
+torch.save(model, 'leafsnap_model.pth')
 
 print('\n[DONE]')
