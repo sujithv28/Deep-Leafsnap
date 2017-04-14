@@ -74,7 +74,9 @@ def save_images(images, species, directory='train', csv_name='temp.csv', augment
 
                     file_name = '{}.jpg'.format(count)
                     image_to_write = cv2.cvtColor(rotated_image, cv2.COLOR_RGB2BGR)
-                    cv2.imwrite(os.path.join(image_dir, file_name), image_to_write)
+                    #cv2.imwrite(os.path.join(image_dir, file_name), image_to_write)
+                    result = Image.fromarray((image_to_write).astype(np.uint8))
+                    result.save(os.path.join(image_dir, file_name))
                     image_paths.append(os.path.join(image_dir, file_name))
                     cropped_images.append(rotated_image)
                     image_species.append(species[index])
@@ -85,7 +87,7 @@ def save_images(images, species, directory='train', csv_name='temp.csv', augment
         if index > 0 and index%1000==0:
             print('[INFO] Processed {:5d} images'.format(index))
 
-    print('[INFO] Final Number of Samples: {}'.format(len(image_paths)))
+    print('[INFO] Final Number of {} Samples: {}'.format(directory, len(image_paths)))
     raw_data = {'image_paths': image_paths,
                 'species'    : image_species}
     df = pd.DataFrame(raw_data, columns = ['image_paths', 'species'])

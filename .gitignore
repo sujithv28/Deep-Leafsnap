@@ -10,3 +10,6 @@ leafsnap-dataset-readme.txt
 leafsnap-dataset-train-images.csv
 leafsnap-dataset-test-images.csv
 *.pyc
+*.tar
+*.pth
+
