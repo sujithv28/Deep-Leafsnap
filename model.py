@@ -38,6 +38,7 @@ best_prec1 = 0
 parser = argparse.ArgumentParser(description='PyTorch LeafSnap Training')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
+args = parser.parse_args()
 
 cfg = {
     'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
@@ -229,18 +230,19 @@ criterion = nn.CrossEntropyLoss()
 if use_cuda:
     criterion = criterion.cuda()
 optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
+
 if args.resume:
     if os.path.isfile(args.resume):
-            print("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume)
-            args.start_epoch = checkpoint['epoch']
-            best_prec1 = checkpoint['best_prec1']
-            model.load_state_dict(checkpoint['state_dict'])
-            optimizer.load_state_dict(checkpoint['optimizer'])
-            print("=> loaded checkpoint '{}' (epoch {})"
-                  .format(args.resume, checkpoint['epoch']))
-        else:
-            print("=> no checkpoint found at '{}'".format(args.resume))
+        print("=> loading checkpoint '{}'".format(args.resume))
+        checkpoint = torch.load(args.resume)
+        args.start_epoch = checkpoint['epoch']
+        best_prec1 = checkpoint['best_prec1']
+        model.load_state_dict(checkpoint['state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        print("=> loaded checkpoint '{}' (epoch {})"
+              .format(args.resume, checkpoint['epoch']))
+    else:
+        print("=> no checkpoint found at '{}'".format(args.resume))
 
 print('\n[INFO] Reading Training and Testing Dataset')
 traindir = os.path.join('dataset', 'train')
@@ -263,7 +265,7 @@ print('\n[INFO] Training Started')
 for epoch in range(1, 1+1):
     adjust_learning_rate(optimizer, epoch)
     # train for one epoch
-    # train(train_loader, model, criterion, optimizer, epoch)
+    train(train_loader, model, criterion, optimizer, epoch)
 
     # evaluate on validation set
     prec1 = validate(val_loader, model, criterion)
@@ -279,7 +281,5 @@ for epoch in range(1, 1+1):
     }, is_best)
     # print('\n[INFO] Saved Model to leafsnap_model.pth')
     # torch.save(model, 'leafsnap_model.pth')
-
-# torch.save(model, 'leafsnap_model.pth')
 
 print('\n[DONE]')
