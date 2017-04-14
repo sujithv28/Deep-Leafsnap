@@ -176,13 +176,11 @@ print('\n[INFO] Creating Model')
 # model = VGG('VGG16')
 model = densenet121()
 
-if USE_CUDA:
-    model = torch.nn.DataParallel(model).cuda()
-
 print('\n[INFO] Model Architecture: \n{}'.format(model))
 
 criterion = nn.CrossEntropyLoss()
 if USE_CUDA:
+     model = torch.nn.DataParallel(model).cuda()
     criterion = criterion.cuda()
 optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
 
