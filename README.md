@@ -3,6 +3,8 @@ LeafSnap replicated using deep neural networks to test accuracy compared to trad
 
 ## Files
 * `model.py` trains a convolutional neural network on the dataset.
+* `dataset.py` creates a new train/test dataset by cropping the leaf and augmenting the data.
+* `utils.py` helps do some of the hardcore image processing in dataset.py.
 * `Visualize-Leaf-Data.ipynb` is a jupyter notebook that explains the code.
 * `leafsnap-dataset-images.csv` is the CSV file corresponding to the dataset.
 * `requirements.txt` contains the pip requirements to run the code.
