@@ -58,7 +58,9 @@ wget https://www.dropbox.com/s/3cwc2atg1qorzg4/data.zip?dl=0
 unzip -a data.zip?dl=0
 rm data.zip?dl=0
 ```
-Clean the LeafSnap data to improve the model accuracy by running:
+
+## Create the Training and Testing Data
+To create the dataset, run
 ```
 python dataset.py
 ```
