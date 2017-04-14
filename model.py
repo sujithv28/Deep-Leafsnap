@@ -1,243 +1,243 @@
 import json
+import cv2
+import scipy.misc
+import torch
+import torchvision
+import utils
+import os
+import shutil
+import time
 import numpy as np
 import pandas as pd
-import cv2
-import os
-import scipy.misc
-import tensorflow as tf
-tf.python.control_flow_ops = tf
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torchvision.models as models
+import torch.nn.parallel
+import torch.backends.cudnn as cudnn
 
-from keras.models import Sequential
-from keras.applications.vgg16 import VGG16, preprocess_input
-from keras.layers import Input, Activation, Flatten, Dense, Dropout, Lambda
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.optimizers import SGD
-from keras.models import Model, load_model
-from keras.utils import np_utils
-from keras.callbacks import ModelCheckpoint
-from PIL import Image
+from torch.autograd import Variable
+from torch.utils.data import sampler
+from torchvision import datasets,transforms
 from sklearn.model_selection import train_test_split
-from sklearn import preprocessing
-from scipy import stats, integrate
+from sklearn.utils import shuffle
+from IPython.display import display
 
 # GLOBAL CONSTANTS
-DATA_FILE = 'leafsnap-dataset-images.csv'
-NUM_CLASSES = 185
+DATA_FILE_TRAIN = 'leafsnap-dataset-train-images.csv'
+DATA_FILE_TEST = 'leafsnap-dataset-test-images.csv'
 NB_EPOCH = 50
-INPUT_SIZE = 64
-VGG_WEIGHTS_FILE = 'vgg16_weights.h5'
+INPUT_SIZE = 224
+species = ['abies_concolor', 'abies_nordmanniana', 'acer_campestre', 'acer_ginnala', 'acer_griseum', 'acer_negundo', 'acer_palmatum', 'acer_pensylvanicum', 'acer_platanoides', 'acer_pseudoplatanus', 'acer_rubrum', 'acer_saccharinum', 'acer_saccharum', 'aesculus_flava', 'aesculus_glabra', 'aesculus_hippocastamon', 'aesculus_pavi', 'ailanthus_altissima', 'albizia_julibrissin', 'amelanchier_arborea', 'amelanchier_canadensis', 'amelanchier_laevis', 'asimina_triloba', 'betula_alleghaniensis', 'betula_jacqemontii', 'betula_lenta', 'betula_nigra', 'betula_populifolia', 'broussonettia_papyrifera', 'carpinus_betulus', 'carpinus_caroliniana', 'carya_cordiformis', 'carya_glabra', 'carya_ovata', 'carya_tomentosa', 'castanea_dentata', 'catalpa_bignonioides', 'catalpa_speciosa', 'cedrus_atlantica', 'cedrus_deodara', 'cedrus_libani', 'celtis_occidentalis', 'celtis_tenuifolia', 'cercidiphyllum_japonicum', 'cercis_canadensis', 'chamaecyparis_pisifera', 'chamaecyparis_thyoides', 'chionanthus_retusus', 'chionanthus_virginicus', 'cladrastis_lutea', 'cornus_florida', 'cornus_kousa', 'cornus_mas', 'corylus_colurna', 'crataegus_crus-galli', 'crataegus_laevigata', 'crataegus_phaenopyrum', 'crataegus_pruinosa', 'crataegus_viridis', 'cryptomeria_japonica', 'diospyros_virginiana', 'eucommia_ulmoides', 'evodia_daniellii', 'fagus_grandifolia', 'ficus_carica', 'fraxinus_americana', 'fraxinus_nigra', 'fraxinus_pennsylvanica', 'ginkgo_biloba', 'gleditsia_triacanthos', 'gymnocladus_dioicus', 'halesia_tetraptera', 'ilex_opaca', 'juglans_cinerea', 'juglans_nigra', 'juniperus_virginiana', 'koelreuteria_paniculata', 'larix_decidua', 'liquidambar_styraciflua', 'liriodendron_tulipifera', 'maclura_pomifera', 'magnolia_acuminata', 'magnolia_denudata', 'magnolia_grandiflora', 'magnolia_macrophylla', 'magnolia_soulangiana', 'magnolia_stellata', 'magnolia_tripetala', 'magnolia_virginiana', 'malus_angustifolia', 'malus_baccata', 'malus_coronaria', 'malus_floribunda', 'malus_hupehensis', 'malus_pumila', 'metasequoia_glyptostroboides', 'morus_alba', 'morus_rubra', 'nyssa_sylvatica', 'ostrya_virginiana', 'oxydendrum_arboreum', 'paulownia_tomentosa', 'phellodendron_amurense', 'picea_abies', 'picea_orientalis', 'picea_pungens', 'pinus_bungeana', 'pinus_cembra', 'pinus_densiflora', 'pinus_echinata', 'pinus_flexilis', 'pinus_koraiensis', 'pinus_nigra', 'pinus_parviflora', 'pinus_peucea', 'pinus_pungens', 'pinus_resinosa', 'pinus_rigida', 'pinus_strobus', 'pinus_sylvestris', 'pinus_taeda', 'pinus_thunbergii', 'pinus_virginiana', 'pinus_wallichiana', 'platanus_acerifolia', 'platanus_occidentalis', 'populus_deltoides', 'populus_grandidentata', 'populus_tremuloides', 'prunus_pensylvanica', 'prunus_sargentii', 'prunus_serotina', 'prunus_serrulata', 'prunus_subhirtella', 'prunus_virginiana', 'prunus_yedoensis', 'pseudolarix_amabilis', 'ptelea_trifoliata', 'pyrus_calleryana', 'quercus_acutissima', 'quercus_alba', 'quercus_bicolor', 'quercus_cerris', 'quercus_coccinea', 'quercus_falcata', 'quercus_imbricaria', 'quercus_macrocarpa', 'quercus_marilandica', 'quercus_michauxii', 'quercus_montana', 'quercus_muehlenbergii', 'quercus_nigra', 'quercus_palustris', 'quercus_phellos', 'quercus_robur', 'quercus_rubra', 'quercus_shumardii', 'quercus_stellata', 'quercus_velutina', 'quercus_virginiana', 'robinia_pseudo-acacia', 'salix_babylonica', 'salix_caroliniana', 'salix_matsudana', 'salix_nigra', 'sassafras_albidum', 'staphylea_trifolia', 'stewartia_pseudocamellia', 'styrax_japonica', 'styrax_obassia', 'syringa_reticulata', 'taxodium_distichum', 'tilia_americana', 'tilia_cordata', 'tilia_europaea', 'tilia_tomentosa', 'toona_sinensis', 'tsuga_canadensis', 'ulmus_americana', 'ulmus_glabra', 'ulmus_parvifolia', 'ulmus_procera', 'ulmus_pumila', 'ulmus_rubra', 'zelkova_serrata']
+NUM_CLASSES = len(species)
+NUMBER_EPOCHS = 20
+best_prec1 = 0
 
-print('\n[INFO] Loading Dataset:')
-columns = ['file_id', 'image_pat', 'segmented_path', 'species', 'source']
-data = pd.read_csv(DATA_FILE, names=columns, header=1)
+# print('\n[INFO] Loading Training Dataset:')
+# data_train = pd.read_csv(DATA_FILE_TRAIN, names=['image_paths', 'species'], header=1)
+# images_train = data_train['image_paths'].tolist()
+# species_train = data_train['species'].tolist()
 
-print('\n[INFO] Creating Training, Validation, and Testing Data (75-15-10 Split):')
-X_train, images_rest, y_train, species_rest = train_test_split(
-    data['image_pat'], data['species'], test_size=0.25, random_state=42)
-# Divide the remaining 25% into validation and testing (60-40)
-X_validation, X_test, y_validation, y_test = train_test_split(
-    images_rest, species_rest, test_size=0.4, random_state=42)
+# print('\n[INFO] Loading Testing Dataset:')
+# data_test = pd.read_csv(DATA_FILE_TEST, names=['image_paths', 'species'], header=1)
+# images_test = data_test['image_paths'].tolist()
+# species_test = data_test['species'].tolist()
 
-encoder = preprocessing.LabelEncoder()
-encoder.fit(y_train)
-classes = encoder.classes_
+class Model(nn.Module):
+    def __init__(self, pretrained_model):
+        self.pretrained_model = pretrained_model
+        self.last_layer = nn.Linear(1000, 185)
 
-y_train = encoder.transform(y_train)
-y_train = np_utils.to_categorical(y_train)
+    def forward(self, x):
+        return self.last_layer(self.pretrained_model(x))
 
-y_validation = encoder.transform(y_validation)
-y_validation = np_utils.to_categorical(y_validation)
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
 
-y_test = encoder.transform(y_test)
-y_test = np_utils.to_categorical(y_test)
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
 
-# Rotates an image 90 degrees
-def check_and_rotate(image, angle):
-    if (image.shape[0] > image.shape[1]):
-        (h, w) = image.shape[:2]
-        (cX, cY) = (w // 2, h // 2)
-        M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
-        cos = np.abs(M[0, 0])
-        sin = np.abs(M[0, 1])
-        nW = int((h * sin) + (w * cos))
-        nH = int((h * cos) + (w * sin))
-        M[0, 2] += (nW / 2) - cX
-        M[1, 2] += (nH / 2) - cY
-        return cv2.warpAffine(image, M, (nW, nH))
-    else:
-        return image
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
 
-def load_image_and_preprocess(path, flip_left_right=False, flip_up_down=False, rotate_180=False):
-    # Open image from disk and flip it if generating data.
-    image = Image.open(path.strip())
+def train(train_loader, model, criterion, optimizer, epoch):
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
 
-    if flip_left_right:
-        image = image.transpose(Image.FLIP_LEFT_RIGHT)
-    if flip_up_down:
-        image = image.transpose(Image.FLIP_TOP_BOTTOM)
-    if rotate_180:
-        image = image.transpose(Image.ROTATE_180)
+    # switch to train mode
+    model.train()
 
-    # Convert the image into mulitdimensional matrix of float values (normally int which messes up our division).
-    image = np.array(image, np.float32)
-    # Resize Image
-    image = scipy.misc.imresize(image, (INPUT_SIZE,INPUT_SIZE))
-    # Return the modified image.
-    return image
+    end = time.time()
+    for i, (input, target) in enumerate(train_loader):
+        # measure data loading time
+        data_time.update(time.time() - end)
 
-print('\n[INFO] Batch Generator:')
-def batch_generator(images, species, batch_size=64, augment_data=True):
-    # Create an array of sample indices.
-    batch_images = []
-    batch_species = []
-    sample_count = 0
-    indices = np.arange(len(images))
+        # target = target.cuda(async=True)
+        input_var = torch.autograd.Variable(input)
+        target_var = torch.autograd.Variable(target)
 
-    while True:
-        # Shuffle indices to minimize overfitting. Common procedure.
-        np.random.shuffle(indices)
-        for i in indices:
-            path = images.iloc[i]
-            original_species = species[i]
+        # compute output
+        output = model(input_var)
+        loss = criterion(output, target_var)
 
-            image = load_image_and_preprocess(path)
-            batch_images.append(image)
-            batch_species.append(original_species)
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        losses.update(loss.data[0], input.size(0))
+        top1.update(prec1[0], input.size(0))
+        top5.update(prec5[0], input.size(0))
 
-            # Add augmentation if needed. We do this because our model is only training on plai
-            # images and we want as much data as possible.
-            if augment_data:
-                # Flip the image left right, up down, and rotated 180 to augment data
-                flipped_left_right_image = load_image_and_preprocess(path,flip_left_right=True)
-                batch_images.append(flipped_left_right_image)
-                batch_species.append(original_species)
+        # compute gradient and do SGD step
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-                flipped_up_down_image = load_image_and_preprocess(path,flip_up_down=True)
-                batch_images.append(flipped_up_down_image)
-                batch_species.append(original_species)
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
 
-                rotated_180_image = load_image_and_preprocess(path,rotate_180=True)
-                batch_images.append(rotated_180_image)
-                batch_species.append(original_species)
+        if i % 10 == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                   epoch, i, len(train_loader), batch_time=batch_time,
+                   data_time=data_time, loss=losses, top1=top1, top5=top5))
 
-            # Increment the number of samples.
-            sample_count += 1
+def validate(val_loader, model, criterion):
+    batch_time = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
 
-            # If we have processed batch_size number samples or this is the last batch
-            # of the epoch, then we submit the batch. Since we augment the data there is a chance
-            # we have more than the number of batch_size elements in each batch.
-            if (sample_count % batch_size) == 0 or (sample_count % len(images)) == 0:
-                yield np.array(batch_images), np.array(batch_species)
-                # Reset
-                batch_images = []
-                batch_species = []
+    # switch to evaluate mode
+    model.eval()
 
-def CNN_Model():
-    activation_relu = 'relu'
-    learning_rate = 1e-4
+    end = time.time()
+    for i, (input, target) in enumerate(val_loader):
+        # target = target.cuda(async=True)
+        input_var = torch.autograd.Variable(input, volatile=True)
+        target_var = torch.autograd.Variable(target, volatile=True)
 
-    model = Sequential()
+        # compute output
+        output = model(input_var)
+        loss = criterion(output, target_var)
 
-    model.add(Lambda(lambda x: x / 1.0, input_shape=(INPUT_SIZE, INPUT_SIZE, 3)))
-    model.add(Convolution2D(24, (5, 5), border_mode='same', subsample=(2, 2)))
-    model.add(Activation(activation_relu))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        losses.update(loss.data[0], input.size(0))
+        top1.update(prec1[0], input.size(0))
+        top5.update(prec5[0], input.size(0))
 
-    model.add(Convolution2D(36, (5, 5), border_mode='same', subsample=(2, 2)))
-    model.add(Activation(activation_relu))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
 
-    model.add(Convolution2D(48, (5, 5), border_mode='same', subsample=(2, 2)))
-    model.add(Activation(activation_relu))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+        if i % 10 == 0:
+            print('Test: [{0}/{1}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                   i, len(val_loader), batch_time=batch_time, loss=losses,
+                   top1=top1, top5=top5))
 
-    model.add(Convolution2D(64, (3, 3), border_mode='same', subsample=(1, 1)))
-    model.add(Activation(activation_relu))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+    print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
+          .format(top1=top1, top5=top5))
 
-    model.add(Convolution2D(64, (3, 3), border_mode='same', subsample=(1, 1)))
-    model.add(Activation(activation_relu))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+    return top1.avg
 
-    # Next, 3 fully connected layers
-    model.add(Flatten())
-    model.add(Dense(1164, activation=activation_relu))
-    model.add(Dropout(0.5))
-    model.add(Dense(582, activation=activation_relu))
-    model.add(Dropout(0.5))
-    model.add(Dense(185, activation='softmax'))
+def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
+    torch.save(state, filename)
+    if is_best:
+        shutil.copyfile(filename, 'model_best.pth.tar')
 
-    return model
+def adjust_learning_rate(optimizer, epoch):
+    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
+    lr = 0.1 * (0.1 ** (epoch // 30))
+    if (lr <= 0.0001):
+        lr = 0.0001
+    print('\n[Learning Rate] {:0.4f}'.format(lr))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
-def VGG_16():
-    base_model = VGG16(weights='imagenet', include_top=False)
+def accuracy(output, target, topk=(1,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
 
-    for layer in base_model.layers:
-        layer.trainable = False
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.view(1, -1).expand_as(pred))
 
-    input = Input(shape=(INPUT_SIZE,INPUT_SIZE,3),name = 'image_input')
-    output_vgg16_conv = base_model(input)
+    res = []
+    for k in topk:
+        correct_k = correct[:k].view(-1).float().sum(0)
+        res.append(correct_k.mul_(100.0 / batch_size))
+    return res
 
-    x = Flatten(name='flatten')(output_vgg16_conv)
-    x = Dense(4096, activation='relu')(x)
-    x = Dropout(0.3)(x)
-    x = Dense(2048, activation='relu')(x)
-    x = Dropout(0.3)(x)
-    x = Dense(1024, activation='relu')(x)
-    x = Dropout(0.3)(x)
-    x = Dense(512, activation='relu')(x)
-    x = Dropout(0.3)(x)
-    x = Dense(NUM_CLASSES, activation='softmax')(x)
+print('\n[INFO] Creating Model')
+model = models.vgg16()
+mod = list(model.classifier.children())
+mod.pop()
+mod.append(torch.nn.Linear(4096, 185))
+new_classifier = torch.nn.Sequential(*mod)
+model.classifier = new_classifier
+if torch.cuda.is_available():
+    model.cuda()
+print('\n[INFO] Model Architecture: \n{}'.format(model))
 
-    model = Model(input=input, output=x)
-    return model
+criterion = nn.CrossEntropyLoss()
+if torch.cuda.is_available():
+    criterion.cuda()
+optimizer = optim.SGD(model.parameters(), lear0.1, momentum=0.9, weight_decay=1e-4)
 
-print('\n[INFO] Generating training and validation batches')
-steps_per_epoch = 4 * len(X_train)
-generator_train = batch_generator(X_train, y_train, augment_data=True)
-validation_steps = len(X_validation)
-generator_validation = batch_generator(X_validation, y_validation, augment_data=False)
+print('\n[INFO] Reading Training and Testing Dataset')
+traindir = os.path.join('dataset', 'train')
+testdir = os.path.join('dataset', 'test')
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+data_train = datasets.ImageFolder(traindir, transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize]))
+data_test = datasets.ImageFolder(testdir, transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize]))
 
-print('\n[INFO] Creating Model:')
-model = CNN_Model()
-sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(optimizer=sgd, loss='categorical_crossentropy')
-print(model.summary())
+train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=2)
+val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=True, num_workers=2)
 
-# best_model_file = "vgg_model.h5"
-# best_model = ModelCheckpoint(best_model_file, monitor='val_loss', verbose=1, save_best_only=True)
+print('\n[INFO] Training Started')
+for epoch in range(1, NUMBER_EPOCHS):
+    adjust_learning_rate(optimizer, epoch)
+    # train for one epoch
+    train(train_loader, model, criterion, optimizer, epoch)
 
-print('\n[INFO] Training Model:')
-history = model.fit_generator(generator_train,
-                              steps_per_epoch=steps_per_epoch,
-                              nb_epoch=NB_EPOCH,
-                              validation_data=generator_validation,
-                              validation_steps=validation_steps)
-model.save_weights('cnn_model.h5', True)
+    # evaluate on validation set
+    prec1 = validate(val_loader, model, criterion)
 
-print('[INFO] Saving the best model...')
-with open('cnn_model.json', 'w') as outfile:
-    json.dump(model.to_json(), outfile)
+    # remember best prec@1 and save checkpoint
+    is_best = prec1 > best_prec1
+    best_prec1 = max(prec1, best_prec1)
+    save_checkpoint({
+        'epoch': epoch + 1,
+        'state_dict': model.state_dict(),
+        'best_prec1': best_prec1,
+        'optimizer' : optimizer.state_dict(),
+    }, is_best)
 
-print('[INFO] Loading the best model...')
-model = load_model('cnn_model.h5')
-
-batch_X = []
-batch_Y = []
-indices = np.arange(len(batch_X))
-np.random.shuffle(indices)
-sample_count = 0
-for i in indices:
-    path = X_test.iloc[i]
-    original_species = y_test[i]
-    image = load_image_and_preprocess(path)
-    batch_X.append(image)
-    batch_Y.append(original_species)
-    sample_count += 1
-
-score = model.evaluate(batch_X, batch_Y, verbose=1)
-print('Test loss:', score[0])
-print('Test accuracy:', score[1])
-
-print('[INFO] Prediction on %d examples:' % (sample_count))
-print(model.predict_classes(batch_X))
+print('\n[DONE]')

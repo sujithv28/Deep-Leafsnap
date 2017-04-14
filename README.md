@@ -43,6 +43,8 @@ Change your values to look something like:
     "backend": "tensorflow"
 }
 ```
+Install PyTorch by following the directions [here](http://pytorch.org/).
+
 Also make sure you have OpenCV installed either through pip or homebrew. You can check if this works by running and making sure nothing complains:
 ```
 python

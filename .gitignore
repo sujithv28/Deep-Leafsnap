@@ -6,4 +6,6 @@ leafsnap-dataset-readme.txt
 *.h5
 *.json
 *.pem
-leafsnap-dataset-cropped-images.csv
+leafsnap-dataset-train-images.csv
+leafsnap-dataset-test-images.csv
+*.pyc
