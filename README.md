@@ -54,7 +54,7 @@ import cv2
 ```
 Download Leafsnap's image data and extract it to the main directory by running in the directory. Original data can be found [here](http://leafsnap.com/dataset/).
 ```
-wget https://www.dropbox.com/s/3cwc2atg1qorzg4/data.zip?dl=0
+wget https://www.dropbox.com/s/dp3sk8wpiu9yszg/data.zip?dl=0
 unzip -a data.zip?dl=0
 rm data.zip?dl=0
 ```
