@@ -75,7 +75,7 @@ def load_image_and_preprocess(path, segmented_path):
 
     # Use the rectangle to crop on original image
     img = image[top_y:bottom_y, left_x:right_x]
-    img = misc.imresize(img, (32,32))
+    img = misc.imresize(img, (96,96))
     return img
 
 def paths_to_images(image_paths, species, augment_data=False):

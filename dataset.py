@@ -90,8 +90,8 @@ def save_images(images, species, directory='train', csv_name='temp.csv', augment
     print('[INFO] Final Number of {} Samples: {}'.format(directory, len(image_paths)))
     raw_data = {'image_paths': image_paths,
                 'species'    : image_species}
-    df = pd.DataFrame(raw_data, columns = ['image_paths', 'species'])
-    df.to_csv(csv_name)
+    # df = pd.DataFrame(raw_data, columns = ['image_paths', 'species'])
+    # df.to_csv(csv_name)
 
 save_images(images_train, species_train, directory='train',
     csv_name='leafsnap-dataset-train-images.csv', augment=True)

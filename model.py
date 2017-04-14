@@ -22,14 +22,17 @@ from torch.utils.data import sampler
 from torchvision import datasets, transforms
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
+from densenet import *
+from vgg import *
+from averagemeter import *
 
 # GLOBAL CONSTANTS
 DATA_FILE_TRAIN = 'leafsnap-dataset-train-images.csv'
 DATA_FILE_TEST = 'leafsnap-dataset-test-images.csv'
 NB_EPOCH = 50
 INPUT_SIZE = 224
-NUM_CLASSES = len(species)
-NUMBER_EPOCHS = 30
+NUM_CLASSES = 185
+NUM_EPOCHS = 30
 LEARNING_RATE = 1e-1
 USE_CUDA = torch.cuda.is_available()
 best_prec1 = 0
@@ -39,59 +42,6 @@ parser = argparse.ArgumentParser(description='PyTorch LeafSnap Training')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 args = parser.parse_args()
-
-# CFG for VGG Models
-cfg = {
-    'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
-    'VGG13': [64, 64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
-    'VGG16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
-    'VGG19': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
-}
-
-# VGG Model in PyTorch
-class VGG(nn.Module):
-    def __init__(self, vgg_name):
-        super(VGG, self).__init__()
-        self.features = self._make_layers(cfg[vgg_name])
-        self.classifier = nn.Linear(512, 185)
-
-    def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        return x
-
-    def _make_layers(self, cfg):
-        layers = []
-        in_channels = 3
-        for x in cfg:
-            if x == 'M':
-                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
-            else:
-                layers += [nn.Conv2d(in_channels, x, kernel_size=3, padding=1),
-                           nn.BatchNorm2d(x),
-                           nn.ReLU(inplace=True)]
-                in_channels = x
-        layers += [nn.AvgPool2d(kernel_size=1, stride=1)]
-        return nn.Sequential(*layers)
-
-# Helper class to save and compute average values
-class AverageMeter(object):
-    """Computes and stores the average and current value"""
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.val = 0
-        self.avg = 0
-        self.sum = 0
-        self.count = 0
-
-    def update(self, val, n=1):
-        self.val = val
-        self.sum += val * n
-        self.count += n
-        self.avg = self.sum / self.count
 
 # Training method which trains model for 1 epoch
 def train(train_loader, model, criterion, optimizer, epoch):
@@ -199,7 +149,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     lr = LEARNING_RATE * (0.1 ** (epoch // 10))
-    # decay = LEARNING_RATE / NUMBER_EPOCHS
+    # decay = LEARNING_RATE / NUM_EPOCHS
     # lr = lr * 1/(1 + decay * epoch)
     # if (lr <= 0.0001):
     #     lr = 0.0001
@@ -223,10 +173,11 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 print('\n[INFO] Creating Model')
-model = VGG('VGG16')
+# model = VGG('VGG16')
+model = densenet121()
 
 if USE_CUDA:
-#    model.features = torch.nn.DataParallel(model.features)
+#    model = torch.nn.DataParallel(model)
     model.cuda()
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))
@@ -267,7 +218,7 @@ train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=Tr
 val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
 
 print('\n[INFO] Training Started')
-for epoch in range(1, 1+1):
+for epoch in range(1, NUM_EPOCHS+1):
     adjust_learning_rate(optimizer, epoch)
 
     # train for one epoch
