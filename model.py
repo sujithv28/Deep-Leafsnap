@@ -217,7 +217,6 @@ data_train = datasets.ImageFolder(traindir, transforms.Compose([
             transforms.ToTensor(),
             normalize]))
 data_test = datasets.ImageFolder(testdir, transforms.Compose([
-            transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize]))
 
