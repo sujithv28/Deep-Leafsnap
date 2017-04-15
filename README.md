@@ -1,10 +1,25 @@
 # Deep-LeafSnap
-LeafSnap replicated using deep neural networks to test accuracy compared to traditional computer vision methods. Model is built off VGG 16 for ImageNet.
+
+Convolutional Neural Networks have become largely popular in image tasks such as image classification recently thanks to Krizhevsky, et al. in their famous paper [ImageNet Classification with Deep Convolutional Neural Networks](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks). Famous models such as AlexNet, VGG-16, ResNet-50, etc. have scored state of the art results on image classfication datasets such as ImageNet and CIFAR-10.
+
+We present an application of CNN's to the task of classifying trees by images of their leaves; specifically all 185 types of trees in the United States. This task proves to be difficult for traditional computer vision methods due to the high number of classes, inconsistency in images, and large visual similarity between leaves.
+
+Kumar, et al. developed a automatic visual recognition algorithm in their 2012 paper [Leafsnap: A Computer Vision System for Automatic Plant Species Identification](http://neerajkumar.org/base/papers/nk_eccv2012_leafsnap.pdf) to attempt to solve this problem.
+
+Our model is based off ResNet-50 due to it's fast training times and low memory costs compared to VGG-16. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from 71% to 87% for the top-1 prediction accuracy and from 96.8% to 99.4% for top-5 prediction accuracy.
+
+We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `32x32` due to limited computational resources. We plan on further improving our data preprocessing and increasing our image size to `96x96` in order to reach 90+% for our top-1 prediction acurracy.
+
+The following goes over the code and how to set it up on your own machine.
 
 ## Files
 * `model.py` trains a convolutional neural network on the dataset.
+* `vgg.py` PyTorch model code for VGG-16.
+* `densenet.py` PyTorch model code for DenseNet-121.
+* `resnet.py` PyTorch model code for ResNet-50.
 * `dataset.py` creates a new train/test dataset by cropping the leaf and augmenting the data.
 * `utils.py` helps do some of the hardcore image processing in dataset.py.
+* `averagemeter.py` helper class which keeps track of a bunch of averages when training.
 * `leafsnap-dataset-images.csv` is the CSV file corresponding to the dataset.
 * `requirements.txt` contains the pip requirements to run the code.
 
@@ -40,11 +55,18 @@ rm data.zip?dl=0
 ```
 
 ## Create the Training and Testing Data
-To create the dataset, run
+If you want to download the original `32x32` image training set, run
+```
+cd dataset
+wget https://www.dropbox.com/s/40yf5n5iyblnfn2/32x32_training.zip?dl=0
+unzip -a 32x32_training.zip?dl=0
+rm 32x32_training.zip?dl=0
+```
+Otherwise, to create the dataset from scratch, run
 ```
 python dataset.py
 ```
-This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `64x64`.
+This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `32x32`.
 
 ## Training Model
 To train the model, run

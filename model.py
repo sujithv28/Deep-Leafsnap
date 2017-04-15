@@ -22,9 +22,7 @@ from torch.utils.data import sampler
 from torchvision import datasets, transforms
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from densenet import *
-from vgg import *
-from resnet import *
+from model import *
 from averagemeter import *
 
 # GLOBAL CONSTANTS
