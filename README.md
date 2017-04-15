@@ -1,6 +1,6 @@
 # Deep-LeafSnap
 
-Convolutional Neural Networks have become largely popular in image tasks such as image classification recently thanks to Krizhevsky, et al. in their famous paper [ImageNet Classification with Deep Convolutional Neural Networks](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks). Famous models such as AlexNet, VGG-16, ResNet-50, etc. have scored state of the art results on image classfication datasets such as ImageNet and CIFAR-10.
+Convolutional Neural Networks have become largely popular in image tasks such as image classification recently largely due to to Krizhevsky, et al. in their famous paper [ImageNet Classification with Deep Convolutional Neural Networks](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks). Famous models such as AlexNet, VGG-16, ResNet-50, etc. have scored state of the art results on image classfication datasets such as ImageNet and CIFAR-10.
 
 We present an application of CNN's to the task of classifying trees by images of their leaves; specifically all 185 types of trees in the United States. This task proves to be difficult for traditional computer vision methods due to the high number of classes, inconsistency in images, and large visual similarity between leaves.
 
