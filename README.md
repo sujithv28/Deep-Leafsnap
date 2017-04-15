@@ -9,7 +9,7 @@ Kumar, et al. developed a automatic visual recognition algorithm in their 2012 p
 Our model is based off ResNet-50 due to it's fast training times and low memory costs compared to VGG-16. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from 71% to 87% for the top-1 prediction accuracy and from 96.8% to 99.4% for top-5 prediction accuracy.
 
 |               | Top-1 Accuracy | Top-5 Accuracy |
-|---------------|----------------|:--------------:|
+|---------------|:--------------:|:--------------:|
 |    Leafsnap   |      70.8%     |      96.8%     |
 | Deep-Leafsnap |      87.1%     |      99.4%     |
 
