@@ -6,7 +6,7 @@ We present an application of CNN's to the task of classifying trees by images of
 
 Kumar, et al. developed a automatic visual recognition algorithm in their 2012 paper [Leafsnap: A Computer Vision System for Automatic Plant Species Identification](http://neerajkumar.org/base/papers/nk_eccv2012_leafsnap.pdf) to attempt to solve this problem.
 
-Our model is based off ResNet-50 due to it's fast training times and low memory costs compared to VGG-16. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from 71% to 87% for the top-1 prediction accuracy and from 96.8% to 99.4% for top-5 prediction accuracy.
+Our model is based off ResNet-50 due to it's fast training times and low memory costs compared to VGG-16. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from 70.8% to 87.1% for the top-1 prediction accuracy and from 96.8% to 99.4% for top-5 prediction accuracy.
 
 |               | Top-1 Accuracy | Top-5 Accuracy |
 |---------------|:--------------:|:--------------:|
