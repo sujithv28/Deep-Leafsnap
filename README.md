@@ -6,14 +6,14 @@ We present an application of CNN's to the task of classifying trees by images of
 
 Kumar, et al. developed a automatic visual recognition algorithm in their 2012 paper [Leafsnap: A Computer Vision System for Automatic Plant Species Identification](http://neerajkumar.org/base/papers/nk_eccv2012_leafsnap.pdf) to attempt to solve this problem.
 
-Our model is based off VGG-16 except modified to work with `32x32` size inputs. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from 70.8% to 87.1% for the top-1 prediction accuracy and from 96.8% to 99.4% for top-5 prediction accuracy.
+Our model is based off VGG-16 except modified to work with `32x32` size inputs. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from `70.8%` to `87.1%` for the top-1 prediction accuracy and from `96.8%` to `99.4%` for top-5 prediction accuracy.
 
 |               | Top-1 Accuracy | Top-5 Accuracy |
 |---------------|:--------------:|:--------------:|
 |    Leafsnap   |      70.8%     |      96.8%     |
 | Deep-Leafsnap |      87.1%     |      99.4%     |
 
-We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `32x32` due to limited computational resources. We plan on further improving our data preprocessing and increasing our image size to `96x96` in order to reach 90+% for our top-1 prediction acurracy.
+We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `32x32` due to limited computational resources. We plan on further improving our data preprocessing and increasing our image size to `96x96` in order to exceed `90%` for our top-1 prediction acurracy.
 
 The following goes over the code and how to set it up on your own machine.
 
