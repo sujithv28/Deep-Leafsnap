@@ -24,6 +24,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from densenet import *
 from vgg import *
+from resnet import *
 from averagemeter import *
 
 # GLOBAL CONSTANTS
@@ -85,7 +86,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % 100 == 0:
+        if i % 10 == 0:
             print('Epoch: [{0}][{1}/{2}]\t'
                   '\Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
@@ -173,15 +174,16 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 print('\n[INFO] Creating Model')
-# model = VGG('VGG16')
-model = densenet121()
+model = VGG('VGG16')
+# model = resnet50()
+# model = densenet121()
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))
 
 criterion = nn.CrossEntropyLoss()
 if USE_CUDA:
      model = torch.nn.DataParallel(model).cuda()
-    criterion = criterion.cuda()
+     criterion = criterion.cuda()
 optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
 
 if args.resume:
