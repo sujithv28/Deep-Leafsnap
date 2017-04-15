@@ -1,5 +1,5 @@
 dataset/
-models/
+trained_models/
 __MACOSX/
 # leafsnap-dataset-images.csv
 leafsnap-dataset-images.txt
