@@ -36,7 +36,7 @@ Install PyTorch by following the directions [here](http://pytorch.org/).
 Clone the repo onto your local machine and cd into the directory.
 ```
 git clone https://github.com/sujithv28/Deep-Leafsnap.git
-cd Deep-LeafSnap
+cd Deep-Leafsnap
 ```
 
 Install all the python dependencies:
