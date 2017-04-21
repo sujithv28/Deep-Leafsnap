@@ -238,6 +238,6 @@ for epoch in range(1, NUM_EPOCHS+1):
         'optimizer' : optimizer.state_dict(),
     }, is_best)
     print('\n[INFO] Saved Model to leafsnap_model.pth')
-    # torch.save(model, 'leafsnap_model.pth')
+    torch.save(model, 'leafsnap_model.pth')
 
 print('\n[DONE]')
