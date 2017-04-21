@@ -188,7 +188,7 @@ criterion = nn.CrossEntropyLoss()
 if USE_CUDA:
      model = torch.nn.DataParallel(model).cuda()
      criterion = criterion.cuda()
-optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4)
+optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4, nesterov=True)
 
 if args.resume:
     if os.path.isfile(args.resume):
@@ -238,6 +238,6 @@ for epoch in range(1, NUM_EPOCHS+1):
         'optimizer' : optimizer.state_dict(),
     }, is_best)
     print('\n[INFO] Saved Model to leafsnap_model.pth')
-    torch.save(model, 'leafsnap_model.pth')
+    # torch.save(model, 'leafsnap_model.pth')
 
 print('\n[DONE]')
