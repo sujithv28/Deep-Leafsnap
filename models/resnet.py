@@ -76,7 +76,7 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, nblocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, nblocks[3], stride=2)
         self.avgpool = nn.AvgPool2d(4)
-        self.linear = nn.Linear(512*block.expansion, num_classes)
+        self.linear = nn.Linear(8192, num_classes)
 
     def _make_layer(self, block, planes, nblocks, stride=1):
         shortcut = None

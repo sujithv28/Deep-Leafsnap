@@ -24,6 +24,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from models import *
 from averagemeter import *
+from PIL import Image
 
 # GLOBAL CONSTANTS
 DATA_FILE_TRAIN = 'leafsnap-dataset-train-images.csv'
@@ -31,7 +32,7 @@ DATA_FILE_TEST = 'leafsnap-dataset-test-images.csv'
 INPUT_SIZE = 224
 NUM_CLASSES = 185
 NUM_EPOCHS = 35
-LEARNING_RATE = 1e-1
+LEARNING_RATE = 1e-2
 USE_CUDA = torch.cuda.is_available()
 best_prec1 = 0
 classes = []
@@ -145,16 +146,17 @@ def validate(val_loader, model, criterion):
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
+        print('\n[INFO] Saved Model to model_best.pth.tar')
         shutil.copyfile(filename, 'model_best.pth.tar')
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = LEARNING_RATE * (0.1 ** (epoch // 6))
-    # decay = LEARNING_RATE / NUM_EPOCHS
-    # lr = lr * 1/(1 + decay * epoch)
-    # if (lr <= 0.0001):
-    #     lr = 0.0001
-    print('\n[Learning Rate] {:0.4f}'.format(lr))
+    # lr = LEARNING_RATE * (0.1 ** (epoch // 6))
+    decay = LEARNING_RATE / NUM_EPOCHS
+    lr = lr * 1/(1 + decay * epoch)
+    if (lr <= 0.0001):
+        lr = 0.0001
+    print('\n[Learning Rate] {:0.6f}'.format(lr))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -174,6 +176,7 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 print('\n[INFO] Creating Model')
+# model.fc = nn.Linear(512, 185)
 model = VGG('VGG16')
 # model = resnet50()
 # model = densenet121()
