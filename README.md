@@ -60,7 +60,7 @@ rm data.zip?dl=0
 ```
 
 ## Create the Training and Testing Data
-If you want to download the original `32x32` image training set, run
+If you want to download the original `64x64` image training set, run
 ```
 cd dataset
 wget https://www.dropbox.com/s/40yf5n5iyblnfn2/32x32_training.zip?dl=0
@@ -71,7 +71,7 @@ Otherwise, to create the dataset from scratch, run
 ```
 python dataset.py
 ```
-This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `32x32`.
+This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `64x64`.
 
 ## Training Model
 To train the model, run
