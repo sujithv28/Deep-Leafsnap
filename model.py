@@ -28,13 +28,13 @@ from averagemeter import *
 # GLOBAL CONSTANTS
 DATA_FILE_TRAIN = 'leafsnap-dataset-train-images.csv'
 DATA_FILE_TEST = 'leafsnap-dataset-test-images.csv'
-NB_EPOCH = 50
 INPUT_SIZE = 224
 NUM_CLASSES = 185
-NUM_EPOCHS = 30
+NUM_EPOCHS = 35
 LEARNING_RATE = 1e-1
 USE_CUDA = torch.cuda.is_available()
 best_prec1 = 0
+classes = []
 
 # ARGS Parser
 parser = argparse.ArgumentParser(description='PyTorch LeafSnap Training')
@@ -84,7 +84,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % 10 == 0:
+        if i % 100 == 0:
             print('Epoch: [{0}][{1}/{2}]\t'
                   '\Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
@@ -100,6 +100,8 @@ def validate(val_loader, model, criterion):
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
+    class_correct = list(0. for i in range(185))
+    class_total = list(0. for i in range(185))
 
     # switch to evaluate mode
     model.eval()
@@ -138,6 +140,10 @@ def validate(val_loader, model, criterion):
     print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
           .format(top1=top1, top5=top5))
 
+    for i in range(10):
+        print('Accuracy of %5s : %2d %%' % (
+            classes[i], 100 * class_correct[i] / class_total[i]))
+
     return top1.avg
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
@@ -147,7 +153,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    lr = LEARNING_RATE * (0.1 ** (epoch // 10))
+    lr = LEARNING_RATE * (0.1 ** (epoch // 6))
     # decay = LEARNING_RATE / NUM_EPOCHS
     # lr = lr * 1/(1 + decay * epoch)
     # if (lr <= 0.0001):
@@ -209,7 +215,7 @@ data_train = datasets.ImageFolder(traindir, transforms.Compose([
 data_test = datasets.ImageFolder(testdir, transforms.Compose([
             transforms.ToTensor(),
             normalize]))
-
+classes = data_train.classes
 
 train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=2)
 val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
@@ -223,7 +229,6 @@ for epoch in range(1, NUM_EPOCHS+1):
     # evaluate on validation set
     prec1 = validate(val_loader, model, criterion)
 
-    # remember best prec@1 and save checkpoint
     is_best = prec1 > best_prec1
     best_prec1 = max(prec1, best_prec1)
     save_checkpoint({
@@ -232,7 +237,7 @@ for epoch in range(1, NUM_EPOCHS+1):
         'best_prec1': best_prec1,
         'optimizer' : optimizer.state_dict(),
     }, is_best)
-    # print('\n[INFO] Saved Model to leafsnap_model.pth')
-    # torch.save(model, 'leafsnap_model.pth')
+    print('\n[INFO] Saved Model to leafsnap_model.pth')
+    torch.save(model, 'leafsnap_model.pth')
 
 print('\n[DONE]')
