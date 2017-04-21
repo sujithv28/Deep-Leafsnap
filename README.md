@@ -63,9 +63,9 @@ rm data.zip?dl=0
 If you want to download the original `64x64` image training set, run
 ```
 cd dataset
-wget https://www.dropbox.com/s/40yf5n5iyblnfn2/32x32_training.zip?dl=0
-unzip -a 32x32_training.zip?dl=0
-rm 32x32_training.zip?dl=0
+wget https://www.dropbox.com/s/ko5fcm73i52u7et/64x64_training.zip?dl=0
+unzip -a 64x64_training.zip?dl=0
+rm 64x64_training.zip?dl=0
 ```
 Otherwise, to create the dataset from scratch, run
 ```
