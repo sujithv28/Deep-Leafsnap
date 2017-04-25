@@ -1,38 +1,37 @@
-import os
+import argparse
 import cv2
 import json
-import time
-import utils
-import shutil
-import argparse
 import numpy as np
+import os
 import pandas as pd
 import scipy.misc
+import shutil
+import time
 import torch
-import torchvision
+import torch.backends.cudnn as cudnn
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.nn.parallel
 import torch.optim as optim
-import torch.nn.functional as F
+import torchvision
 import torchvision.models as models
-import torch.backends.cudnn as cudnn
+import utils
 
+from PIL import Image
+from averagemeter import *
+from models import *
+from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 from torch.autograd import Variable
 from torch.utils.data import sampler
-from torchvision import datasets, transforms
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-from models import *
-from averagemeter import *
-from PIL import Image
+from torchvision import datasets
+from torchvision import transforms
 
 # GLOBAL CONSTANTS
-DATA_FILE_TRAIN = 'leafsnap-dataset-train-images.csv'
-DATA_FILE_TEST = 'leafsnap-dataset-test-images.csv'
 INPUT_SIZE = 224
 NUM_CLASSES = 185
 NUM_EPOCHS = 35
-LEARNING_RATE = 1e-2
+LEARNING_RATE = 1e-1
 USE_CUDA = torch.cuda.is_available()
 best_prec1 = 0
 classes = []
@@ -151,9 +150,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    # lr = LEARNING_RATE * (0.1 ** (epoch // 6))
-    decay = LEARNING_RATE / NUM_EPOCHS
-    lr = lr * 1/(1 + decay * epoch)
+    lr = LEARNING_RATE * (0.1 ** (epoch // 6))
     if (lr <= 0.0001):
         lr = 0.0001
     print('\n[Learning Rate] {:0.6f}'.format(lr))
@@ -177,8 +174,8 @@ def accuracy(output, target, topk=(1,)):
 
 print('\n[INFO] Creating Model')
 # model.fc = nn.Linear(512, 185)
-model = VGG('VGG16')
-# model = resnet50()
+# model = VGG('VGG16')
+model = resnet101()
 # model = densenet121()
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))

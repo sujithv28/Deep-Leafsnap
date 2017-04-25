@@ -1,29 +1,43 @@
+import cv2
 import json
 import numpy as np
-import pandas as pd
-import cv2
 import os
-import scipy.misc
+import pandas as pd
 import random
-import utils
+import scipy.misc
 import time
+import utils
 
-from PIL import Image
-from sklearn import preprocessing
 from IPython.display import display
-import matplotlib.pyplot as plt
-from scipy import stats, integrate, misc
-from skimage import io,img_as_float
+from PIL import Image
+from scipy import integrate
+from scipy import misc
+from scipy import stats
+from skimage import img_as_float
+from skimage import io
+from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 
 # GLOBAL CONSTANTS
 DATA_FILE = 'leafsnap-dataset-images.csv'
 NUM_CLASSES = 185
+bad_lab_species = set(['Abies concolor', 'Abies nordmanniana', 'Picea pungens', 'Picea orientalis',
+               'Picea abies', 'Cedrus libani', 'Cedrus atlantica', 'Cedrus deodara', 
+               'Juniperus virginiana', 'Tsuga canadensis', 'Larix decidua', 'Pseudolarix amabilis'])
 
 columns = ['file_id', 'image_pat', 'segmented_path', 'species', 'source']
 data = pd.read_csv(DATA_FILE, names=columns, header=1)
 
-train_df = data.sample(frac=0.80,random_state=42)
+# Drop bad image samples
+bad_indices = []
+bad_lab_species_pattern = '|'.join(bad_lab_species)
+for i in range(len(data)):
+    if ((data.get_value(i,'species') in bad_lab_species_pattern) and (data.get_value(i,'source').lower() in 'lab')):
+        bad_indices.append(i)
+data.drop(data.index[bad_indices], inplace=True)
+
+# Split train test
+train_df = data.sample(frac=0.80,random_state=7)
 test_df = data.drop(train_df.index)
 
 images_train_original = train_df['image_pat'].tolist()

@@ -6,6 +6,7 @@ pytest
 h5py
 sklearn
 scipy
+scikit-image
 scikit_learn
 jupyter
 opencv-python

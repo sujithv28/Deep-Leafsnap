@@ -1,14 +1,18 @@
+import cv2
 import json
 import numpy as np
+import os
 import pandas as pd
 import torch
-import cv2
-import os
+import random
 
 from PIL import Image
+from scipy import integrate
+from scipy import misc
+from scipy import stats
+from skimage import img_as_float
+from skimage import io
 from sklearn import preprocessing
-from scipy import stats, integrate, misc
-from skimage import io,img_as_float
 
 def rotate(image, angle):
     (h, w) = image.shape[:2]
@@ -75,7 +79,7 @@ def load_image_and_preprocess(path, segmented_path):
 
     # Use the rectangle to crop on original image
     img = image[top_y:bottom_y, left_x:right_x]
-    img = misc.imresize(img, (64,64))
+    img = misc.imresize(img, (128,128))
     return img
 
 def paths_to_images(image_paths, species, augment_data=False):
@@ -91,17 +95,15 @@ def paths_to_images(image_paths, species, augment_data=False):
         batch_species.append(species[i])
 
         if augment_data:
-            angle = 45
-            while angle < 360:
-                rotated_image = load_image_and_preprocess(image_paths[i], angle)
+            angles = [45,90,135,180,225,270,315]
+            random.shuffle(angles)
+            for i in range(4):
+                rotated_image = load_image_and_preprocess(image_paths[i], angles[i])
                 batch_images.append(rotated_image)
                 batch_species.append(species[i])
-                angle += 45
 
         if count > 0 and count%1000==0:
             print('[INFO] Processed {:5d} paths'.format(count))
         count += 1
 
     return np.array(batch_images), np.array(batch_species)
-
-
