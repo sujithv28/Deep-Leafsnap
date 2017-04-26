@@ -21,7 +21,7 @@ The following goes over the code and how to set it up on your own machine.
 * `model.py` trains a convolutional neural network on the dataset.
 * `vgg.py` PyTorch model code for VGG-16.
 * `densenet.py` PyTorch model code for DenseNet-121.
-* `resnet.py` PyTorch model code for ResNet-50.
+* `resnet.py` PyTorch model code for ResNet.
 * `dataset.py` creates a new train/test dataset by cropping the leaf and augmenting the data.
 * `utils.py` helps do some of the hardcore image processing in dataset.py.
 * `averagemeter.py` helper class which keeps track of a bunch of averages when training.
@@ -60,18 +60,11 @@ rm data.zip?dl=0
 ```
 
 ## Create the Training and Testing Data
-If you want to download the original `64x64` image training set, run
-```
-cd dataset
-wget https://www.dropbox.com/s/ko5fcm73i52u7et/64x64_training.zip?dl=0
-unzip -a 64x64_training.zip?dl=0
-rm 64x64_training.zip?dl=0
-```
-Otherwise, to create the dataset from scratch, run
+To create the dataset, run
 ```
 python dataset.py
 ```
-This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `64x64`.
+This cleans the dataset by cropping only neccesary portions of the images containing the leaves and also resizes them to `64x64`. If you want to change the image size go to `utils.py` and change `img = misc.imresize(img, (64,64))`to any size you want.
 
 ## Training Model
 To train the model, run
