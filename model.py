@@ -173,9 +173,10 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 print('\n[INFO] Creating Model')
-# model.fc = nn.Linear(512, 185)
+model = models.resnet101(pretrained=True)
+model.fc = nn.Linear(2048, 185)
 # model = VGG('VGG16')
-model = resnet101()
+# model = resnet101()
 # model = densenet121()
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))
