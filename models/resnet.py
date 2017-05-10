@@ -63,11 +63,12 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
+
     def __init__(self, block, nblocks, num_classes=185):
         super(ResNet, self).__init__()
         self.in_planes = 64
         self.pre_layers = nn.Sequential(
-            conv3x3(3,64),
+            conv3x3(3, 64),
             nn.BatchNorm2d(64),
             nn.ReLU(True),
         )
@@ -106,16 +107,20 @@ class ResNet(nn.Module):
 
 
 def resnet18():
-    return ResNet(BasicBlock, [2,2,2,2])
+    return ResNet(BasicBlock, [2, 2, 2, 2])
+
 
 def resnet34():
-    return ResNet(BasicBlock, [3,4,6,3])
+    return ResNet(BasicBlock, [3, 4, 6, 3])
+
 
 def resnet50():
-    return ResNet(Bottleneck, [3,4,6,3])
+    return ResNet(Bottleneck, [3, 4, 6, 3])
+
 
 def resnet101():
-    return ResNet(Bottleneck, [3,4,23,3])
+    return ResNet(Bottleneck, [3, 4, 23, 3])
+
 
 def resnet152():
-    return ResNet(Bottleneck, [3,8,36,3])
+    return ResNet(Bottleneck, [3, 8, 36, 3])

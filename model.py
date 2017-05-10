@@ -43,6 +43,8 @@ parser.add_argument('--resume', default='', type=str, metavar='PATH',
 args = parser.parse_args()
 
 # Training method which trains model for 1 epoch
+
+
 def train(train_loader, model, criterion, optimizer, epoch):
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -91,8 +93,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, top5=top5))
+                      epoch, i, len(train_loader), batch_time=batch_time,
+                      data_time=data_time, loss=losses, top1=top1, top5=top5))
 
 # Validation method
 def validate(val_loader, model, criterion):
@@ -134,19 +136,21 @@ def validate(val_loader, model, criterion):
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                   i, len(val_loader), batch_time=batch_time, loss=losses,
-                   top1=top1, top5=top5))
+                      i, len(val_loader), batch_time=batch_time, loss=losses,
+                      top1=top1, top5=top5))
 
     print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
           .format(top1=top1, top5=top5))
 
     return top1.avg
 
+
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
         print('\n[INFO] Saved Model to model_best.pth.tar')
         shutil.copyfile(filename, 'model_best.pth.tar')
+
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
@@ -156,6 +160,7 @@ def adjust_learning_rate(optimizer, epoch):
     print('\n[Learning Rate] {:0.6f}'.format(lr))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
@@ -183,9 +188,10 @@ print('\n[INFO] Model Architecture: \n{}'.format(model))
 
 criterion = nn.CrossEntropyLoss()
 if USE_CUDA:
-     model = torch.nn.DataParallel(model).cuda()
-     criterion = criterion.cuda()
-optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9, weight_decay=1e-4, nesterov=True)
+    model = torch.nn.DataParallel(model).cuda()
+    criterion = criterion.cuda()
+optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE,
+                      momentum=0.9, weight_decay=1e-4, nesterov=True)
 
 if args.resume:
     if os.path.isfile(args.resume):
@@ -206,19 +212,19 @@ testdir = os.path.join('dataset', 'test')
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
 data_train = datasets.ImageFolder(traindir, transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            normalize]))
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    normalize]))
 data_test = datasets.ImageFolder(testdir, transforms.Compose([
-            transforms.ToTensor(),
-            normalize]))
+    transforms.ToTensor(),
+    normalize]))
 classes = data_train.classes
 
 train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=2)
 val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
 
 print('\n[INFO] Training Started')
-for epoch in range(1, NUM_EPOCHS+1):
+for epoch in range(1, NUM_EPOCHS + 1):
     adjust_learning_rate(optimizer, epoch)
 
     # train for one epoch
@@ -232,7 +238,7 @@ for epoch in range(1, NUM_EPOCHS+1):
         'epoch': epoch + 1,
         'state_dict': model.state_dict(),
         'best_prec1': best_prec1,
-        'optimizer' : optimizer.state_dict(),
+        'optimizer': optimizer.state_dict(),
     }, is_best)
     print('\n[INFO] Saved Model to leafsnap_model.pth')
     torch.save(model, 'leafsnap_model.pth')
