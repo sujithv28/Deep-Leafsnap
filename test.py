@@ -64,6 +64,7 @@ def test(test_loader, model, criterion):
 
         # compute output
         output = model(input_var)
+        print(output)
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
@@ -138,6 +139,7 @@ if args.resume:
 print('\n[INFO] Reading Training and Testing Dataset')
 traindir = os.path.join('dataset', 'train')
 testdir = os.path.join('dataset', 'test')
+iphonedir = os.path.join('dataset', 'iphone')
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
 data_train = datasets.ImageFolder(traindir, transforms.Compose([
@@ -147,14 +149,21 @@ data_train = datasets.ImageFolder(traindir, transforms.Compose([
 data_test = datasets.ImageFolder(testdir, transforms.Compose([
     transforms.ToTensor(),
     normalize]))
+iphone_test = datasets.ImageFolder(testdir, transforms.Compose([
+    transforms.ToTensor(),
+    normalize]))
 classes = data_train.classes
 
 train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=2)
 test_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
+iphone_loader = torch.utils.data.DataLoader(iphone_test, batch_size=64, shuffle=False, num_workers=2)
 
-print('\n[INFO] Testing Started')
-for epoch in range(1, 2):
-    prec1 = validate(val_loader, model, criterion)
-    print(prec1)
+print('\n[INFO] Testing on Original Test Data Started')
+prec1 = validate(val_loader, model, criterion)
+print(prec1)
+
+print('\n[INFO] Testing on iPhone Test Data Started')
+prec1 = validate(iphone_loader, model, criterion)
+print(prec1)
 
 print('\n[DONE]')
