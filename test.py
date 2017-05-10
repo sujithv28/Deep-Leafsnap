@@ -64,11 +64,12 @@ def test(test_loader, model, criterion):
 
         # compute output
         output = model(input_var)
-        print(output)
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        _, predicted = torch.max(outputs.data, 1)
+        print('Predicted: ', ' '.join('%5s' % classes[predicted[0][0]])
         losses.update(loss.data[0], input.size(0))
         top1.update(prec1[0], input.size(0))
         top5.update(prec5[0], input.size(0))
@@ -83,7 +84,7 @@ def test(test_loader, model, criterion):
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                   'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                      i, len(val_loader), batch_time=batch_time, loss=losses,
+                      i, len(test_loader), batch_time=batch_time, loss=losses,
                       top1=top1, top5=top5))
 
     print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
@@ -159,11 +160,11 @@ test_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=Fals
 iphone_loader = torch.utils.data.DataLoader(iphone_test, batch_size=64, shuffle=False, num_workers=2)
 
 print('\n[INFO] Testing on Original Test Data Started')
-prec1 = validate(val_loader, model, criterion)
+prec1 = test(test_loader, model, criterion)
 print(prec1)
 
 print('\n[INFO] Testing on iPhone Test Data Started')
-prec1 = validate(iphone_loader, model, criterion)
+prec1 = test(iphone_loader, model, criterion)
 print(prec1)
 
 print('\n[DONE]')
