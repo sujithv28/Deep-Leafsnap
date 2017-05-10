@@ -180,11 +180,6 @@ def accuracy(output, target, topk=(1,)):
 print('\n[INFO] Creating Model')
 model = models.resnet101(pretrained=False)
 model.fc = nn.Linear(2048, 185)
-best_prec1 = checkpoint['best_prec1']
-model.load_state_dict(checkpoint['state_dict'])
-optimizer.load_state_dict(checkpoint['optimizer'])
-
-print('\n[INFO] Model Architecture: \n{}'.format(model))
 
 criterion = nn.CrossEntropyLoss()
 if USE_CUDA:
@@ -192,6 +187,12 @@ if USE_CUDA:
     criterion = criterion.cuda()
 optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE,
                       momentum=0.9, weight_decay=1e-4, nesterov=True)
+
+checkpoint = torch.load('model_best.pth.tar')
+best_prec1 = checkpoint['best_prec1']
+model.load_state_dict(checkpoint['state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer'])
+print('\n[INFO] Model Architecture: \n{}'.format(model))
 
 if args.resume:
     if os.path.isfile(args.resume):
