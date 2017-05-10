@@ -110,11 +110,13 @@ classes = data_train.classes
 
 test_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
 
-print('\n[INFO] Testing Started')
 criterion = nn.CrossEntropyLoss()
 if USE_CUDA:
 	criterion = criterion.cuda()
 model = torch.load('model_best.pth.tar')
+print('\n[INFO] Model Architecture: \n{}'.format(model))
+
+print('\n[INFO] Testing Started')
 prec1 = test(test_loader, model, criterion)
 print(prec1)
 
