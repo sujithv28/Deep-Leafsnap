@@ -180,8 +180,9 @@ def accuracy(output, target, topk=(1,)):
 print('\n[INFO] Creating Model')
 model = models.resnet101(pretrained=False)
 model.fc = nn.Linear(2048, 185)
-checkpoint = torch.load('model_best.pth.tar')
+best_prec1 = checkpoint['best_prec1']
 model.load_state_dict(checkpoint['state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer'])
 
 print('\n[INFO] Model Architecture: \n{}'.format(model))
 
