@@ -150,7 +150,7 @@ data_train = datasets.ImageFolder(traindir, transforms.Compose([
 data_test = datasets.ImageFolder(testdir, transforms.Compose([
     transforms.ToTensor(),
     normalize]))
-iphone_test = datasets.ImageFolder(testdir, transforms.Compose([
+iphone_test = datasets.ImageFolder(iphonedir, transforms.Compose([
     transforms.ToTensor(),
     normalize]))
 classes = data_train.classes
