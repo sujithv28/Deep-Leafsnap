@@ -16,6 +16,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.models as models
 import utils
+import multiprocessing
 
 from PIL import Image
 from averagemeter import *
@@ -220,8 +221,8 @@ data_test = datasets.ImageFolder(testdir, transforms.Compose([
     normalize]))
 classes = data_train.classes
 
-train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=2)
-val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=2)
+train_loader = torch.utils.data.DataLoader(data_train, batch_size=64, shuffle=True, num_workers=multiprocessing.cpu_count())
+val_loader = torch.utils.data.DataLoader(data_test, batch_size=64, shuffle=False, num_workers=multiprocessing.cpu_count())
 
 print('\n[INFO] Training Started')
 for epoch in range(1, NUM_EPOCHS + 1):
