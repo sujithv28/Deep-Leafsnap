@@ -22,16 +22,17 @@ The following goes over the code and how to set it up on your own machine.
 * `vgg.py` PyTorch model code for VGG-16.
 * `densenet.py` PyTorch model code for DenseNet-121.
 * `resnet.py` PyTorch model code for ResNet.
+* `mobilenet.py` PyTorch model code for MobileNet.
 * `dataset.py` creates a new train/test dataset by cropping the leaf and augmenting the data.
 * `utils.py` helps do some of the hardcore image processing in dataset.py.
 * `averagemeter.py` helper class which keeps track of a bunch of averages when training.
 * `leafsnap-dataset-images.csv` is the CSV file corresponding to the dataset.
 * `requirements.txt` contains the pip requirements to run the code.
+* `setup_scriptGPU.sh` is a script to install the requirements and download the dataset.
+* `setup_script.sh` does the same as the GPU script, but for non GPU enabled machines.
 
 ## Installation
-To run the models and code make sure you [Python](https://www.python.org/downloads/) installed.
-
-Install PyTorch by following the directions [here](http://pytorch.org/).
+To run the models and code make sure you have [Python](https://www.python.org/downloads/) and Pip installed.
 
 Clone the repo onto your local machine and cd into the directory.
 ```
@@ -39,24 +40,21 @@ git clone https://github.com/sujithv28/Deep-Leafsnap.git
 cd Deep-Leafsnap
 ```
 
-Install all the python dependencies:
+If you are running a machine with GPU capabilities, run the following command:
 ```
-pip install -r requirements.txt
+bash setup_scriptGPU.sh
 ```
-Make sure sklearn is updated to the latest version.
+This will install the necessary requirements, install Torch with CUDA 8.0, and download the dataset.
+
+If you do not have a GPU machine, run:
 ```
-pip install --upgrade sklearn
+bash setup_script.sh
 ```
-Also make sure you have OpenCV installed either through pip or homebrew. You can check if this works by running and making sure nothing complains:
+
+Check to make sure the OpenCV installation was succesful. You can do this by running and making sure nothing complains:
 ```
 python
 import cv2
-```
-Download Leafsnap's image data and extract it to the main directory by running in the directory. Original data can be found [here](http://leafsnap.com/dataset/).
-```
-wget https://www.dropbox.com/s/dp3sk8wpiu9yszg/data.zip?dl=0
-unzip -a data.zip?dl=0
-rm data.zip?dl=0
 ```
 
 ## Create the Training and Testing Data
