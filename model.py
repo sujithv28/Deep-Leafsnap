@@ -20,7 +20,7 @@ import multiprocessing
 
 from PIL import Image
 from averagemeter import *
-from models import *
+from models import MobileNet
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from torch.autograd import Variable
@@ -179,7 +179,7 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 print('\n[INFO] Creating Model')
-model = models.MobileNet
+model = MobileNet()
 #model = models.resnet101(pretrained=False)
 #model.fc = nn.Linear(2048, 185)
 # model = VGG('VGG16')
