@@ -13,7 +13,9 @@ Our first model is based off VGG-16 except modified to work with `64x64` size in
 |    Leafsnap   |      70.8%     |      96.8%     |
 | Deep-Leafsnap |      86.2%     |      98.4%     |
 
-We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `64x64` due to limited computational resources. We plan on further improving our data preprocessing and increasing our image size to `224x224` in order to exceed `90%` for our top-1 prediction acurracy.
+We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `64x64` due to limited computational resources. 
+
+Note: Using full 224x224 size images, MobileNet 1.0 achieves 93.4% Top 1 and 99.3% Top 5 after 10 epochs of the training data.
 
 Another goal of these networks is to be able to run them on the LeafSnap mobile app. There has been a number of recent research efforts to develop networks that are capable of running on compute-constrained devices, one such effort is [MobileNet](https://arxiv.org/abs/1704.04861). MobileNet has tunable hyperparameters that allow the network to be reduced to different sizes depending on just how constrained your resources are. The full version (MobileNet 1.0) has comparable accuracy to VGG16 and GoogLeNet, but with a drastic reduction in parameters and compute time at inference. We now experiment with a MobileNet of different sizes on our goal task, and compare its accuracy and speed with other models. 
 
