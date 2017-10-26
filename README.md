@@ -6,22 +6,23 @@ We present an application of CNN's to the task of classifying trees by images of
 
 Kumar, et al. developed a automatic visual recognition algorithm in their 2012 paper [Leafsnap: A Computer Vision System for Automatic Plant Species Identification](http://neerajkumar.org/base/papers/nk_eccv2012_leafsnap.pdf) to attempt to solve this problem.
 
-Our first model is based off VGG-16 except modified to work with `64x64` size inputs. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from `70.8%` to `86.2%` for the top-1 prediction accuracy and from `96.8%` to `98.4%` for top-5 prediction accuracy.
+Another goal of our Convolutional networks is to be able to run on the LeafSnap mobile app. There has been a number of recent research efforts to develop networks that are capable of running on compute-constrained devices, one such effort is [MobileNet](https://arxiv.org/abs/1704.04861). MobileNet has tunable hyperparameters that allow the network to be reduced to different sizes depending on just how constrained your resources are. The full version (MobileNet 1.0) has comparable accuracy to VGG16 and GoogLeNet, but with a drastic reduction in parameters and compute time at inference. We now experiment with a MobileNet of different sizes on our goal task, and compare its accuracy and speed with other models. 
 
-|               | Top-1 Accuracy | Top-5 Accuracy |
-|---------------|:--------------:|:--------------:|
-|    Leafsnap   |      70.8%     |      96.8%     |
-| Deep-Leafsnap |      86.2%     |      98.4%     |
+Our first model is based off VGG-16 except modified to work with `64x64` size inputs due to computational constraints. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from `70.8%` to `86.2%` for the top-1 prediction accuracy and from `96.8%` to `98.4%` for top-5 prediction accuracy.
+
+|                      | Top-1 Accuracy | Top-5 Accuracy |
+|----------------------|:--------------:|:--------------:|
+|       Leafsnap       |      70.8%     |      96.8%     |
+| Deep-Leafsnap VGG-16 |      86.2%     |      98.4%     |
 
 We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `64x64` due to limited computational resources. 
 
-Note: Using full 224x224 size images, MobileNet 1.0 achieves 93.4% Top 1 and 99.3% Top 5 after 10 epochs of the training data.
+Our second model we trained was a MobileNet using the full 224x224 images. Despite the increase in image size, the MobileNet still uses significantly less compute and number of parameters than the constrained VGG-16 network. After only 10 epochs of training with no pretraining, the results were as follows.
 
-Another goal of these networks is to be able to run them on the LeafSnap mobile app. There has been a number of recent research efforts to develop networks that are capable of running on compute-constrained devices, one such effort is [MobileNet](https://arxiv.org/abs/1704.04861). MobileNet has tunable hyperparameters that allow the network to be reduced to different sizes depending on just how constrained your resources are. The full version (MobileNet 1.0) has comparable accuracy to VGG16 and GoogLeNet, but with a drastic reduction in parameters and compute time at inference. We now experiment with a MobileNet of different sizes on our goal task, and compare its accuracy and speed with other models. 
 
 |               | Top-1 Accuracy | Top-5 Accuracy | Batch Images / Sec | Single Image / Sec |
 |---------------|:--------------:|:--------------:|:------------------:|:------------------:|
-| MobileNet 1.0 |      xx.x%     |      xx.x%     |                    |                    |  
+| MobileNet 1.0 |      93.4%     |      99.3%     |                    |                    |  
 | MobileNet .25 |      xx.x%     |      xx.x%     |                    |                    |  
 |     VGG-16    |      yy.y%     |      yy.y%     |                    |                    |
 
