@@ -6,14 +6,26 @@ We present an application of CNN's to the task of classifying trees by images of
 
 Kumar, et al. developed a automatic visual recognition algorithm in their 2012 paper [Leafsnap: A Computer Vision System for Automatic Plant Species Identification](http://neerajkumar.org/base/papers/nk_eccv2012_leafsnap.pdf) to attempt to solve this problem.
 
-Our model is based off VGG-16 except modified to work with `64x64` size inputs. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from `70.8%` to `86.2%` for the top-1 prediction accuracy and from `96.8%` to `98.4%` for top-5 prediction accuracy.
+Our first model is based off VGG-16 except modified to work with `64x64` size inputs. We achieved state of the art results at the time. Our deep learning approach to this problem further improves the accuracy from `70.8%` to `86.2%` for the top-1 prediction accuracy and from `96.8%` to `98.4%` for top-5 prediction accuracy.
 
 |               | Top-1 Accuracy | Top-5 Accuracy |
 |---------------|:--------------:|:--------------:|
 |    Leafsnap   |      70.8%     |      96.8%     |
 | Deep-Leafsnap |      86.2%     |      98.4%     |
 
-We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `64x64` due to limited computational resources. We plan on further improving our data preprocessing and increasing our image size to `224x224` in order to exceed `90%` for our top-1 prediction acurracy.
+We noticed that our model failed to recognize specific classes of trees constantly causing our overall accuracy to derease. This is primarily due to the fact that those trees had very small leaves which were hard to preprocess and crop. Our training images were also resized to `64x64` due to limited computational resources. 
+
+Note: Using full 224x224 size images, MobileNet 1.0 achieves 93.4% Top 1 and 99.3% Top 5 after 10 epochs of the training data.
+
+Another goal of these networks is to be able to run them on the LeafSnap mobile app. There has been a number of recent research efforts to develop networks that are capable of running on compute-constrained devices, one such effort is [MobileNet](https://arxiv.org/abs/1704.04861). MobileNet has tunable hyperparameters that allow the network to be reduced to different sizes depending on just how constrained your resources are. The full version (MobileNet 1.0) has comparable accuracy to VGG16 and GoogLeNet, but with a drastic reduction in parameters and compute time at inference. We now experiment with a MobileNet of different sizes on our goal task, and compare its accuracy and speed with other models. 
+
+|               | Top-1 Accuracy | Top-5 Accuracy | Batch Images / Sec | Single Image / Sec |
+|---------------|:--------------:|:--------------:|:------------------:|:------------------:|
+| MobileNet 1.0 |      xx.x%     |      xx.x%     |                    |                    |  
+| MobileNet .25 |      xx.x%     |      xx.x%     |                    |                    |  
+|     VGG-16    |      yy.y%     |      yy.y%     |                    |                    |
+
+Due to the fact that MobileNet provides substantial reductions in parameter count, the resulting mobile app will have greater speed performance, use less battery power, and have less memory footprint. 
 
 The following goes over the code and how to set it up on your own machine.
 
@@ -22,16 +34,17 @@ The following goes over the code and how to set it up on your own machine.
 * `vgg.py` PyTorch model code for VGG-16.
 * `densenet.py` PyTorch model code for DenseNet-121.
 * `resnet.py` PyTorch model code for ResNet.
+* `mobilenet.py` PyTorch model code for MobileNet.
 * `dataset.py` creates a new train/test dataset by cropping the leaf and augmenting the data.
 * `utils.py` helps do some of the hardcore image processing in dataset.py.
 * `averagemeter.py` helper class which keeps track of a bunch of averages when training.
 * `leafsnap-dataset-images.csv` is the CSV file corresponding to the dataset.
 * `requirements.txt` contains the pip requirements to run the code.
+* `setup_scriptGPU.sh` is a script to install the requirements and download the dataset.
+* `setup_script.sh` does the same as the GPU script, but for non GPU enabled machines.
 
 ## Installation
-To run the models and code make sure you [Python](https://www.python.org/downloads/) installed.
-
-Install PyTorch by following the directions [here](http://pytorch.org/).
+To run the models and code make sure you have [Python](https://www.python.org/downloads/) and Pip installed.
 
 Clone the repo onto your local machine and cd into the directory.
 ```
@@ -39,24 +52,21 @@ git clone https://github.com/sujithv28/Deep-Leafsnap.git
 cd Deep-Leafsnap
 ```
 
-Install all the python dependencies:
+If you are running a machine with GPU capabilities, run the following command:
 ```
-pip install -r requirements.txt
+bash setup_scriptGPU.sh
 ```
-Make sure sklearn is updated to the latest version.
+This will install the necessary requirements, install Torch with CUDA 8.0, and download the dataset.
+
+If you do not have a GPU machine, run:
 ```
-pip install --upgrade sklearn
+bash setup_script.sh
 ```
-Also make sure you have OpenCV installed either through pip or homebrew. You can check if this works by running and making sure nothing complains:
+
+Check to make sure the OpenCV installation was succesful. You can do this by running and making sure nothing complains:
 ```
 python
 import cv2
-```
-Download Leafsnap's image data and extract it to the main directory by running in the directory. Original data can be found [here](http://leafsnap.com/dataset/).
-```
-wget https://www.dropbox.com/s/dp3sk8wpiu9yszg/data.zip?dl=0
-unzip -a data.zip?dl=0
-rm data.zip?dl=0
 ```
 
 ## Create the Training and Testing Data
