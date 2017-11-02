@@ -1,53 +1,94 @@
-import time
-import torch
 import torch.nn as nn
-import torch.backends.cudnn as cudnn
-import torchvision.models as models
-from torch.autograd import Variable
 
-class MobileNet(nn.Module):
-    def __init__(self):
-        super(MobileNet, self).__init__()
+def nearby_int(n):
+    return int(round(n))
 
-        def conv_bn(inp, oup, stride):
-            return nn.Sequential(
-                nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
-                nn.BatchNorm2d(oup),
-                nn.ReLU(inplace=True)
-            )
 
-        def conv_dw(inp, oup, stride):
-            return nn.Sequential(
-                nn.Conv2d(inp, inp, 3, stride, 1, groups=inp, bias=False),
-                nn.BatchNorm2d(inp),
-                nn.ReLU(inplace=True),
-    
-                nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
-                nn.BatchNorm2d(oup),
-                nn.ReLU(inplace=True),
-            )
+class DepthwiseSeparableFusedConv2d(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size,
+                 stride=1, padding=0):
+        super(DepthwiseSeparableFusedConv2d, self).__init__()
+        self.components = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=in_channels,
+                      groups=in_channels, kernel_size=kernel_size,
+                      stride=stride, padding=padding, bias=False),
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True),
 
-        self.model = nn.Sequential(
-            conv_bn(  3,  32, 2), 
-            conv_dw( 32,  64, 1),
-            conv_dw( 64, 128, 2),
-            conv_dw(128, 128, 1),
-            conv_dw(128, 256, 2),
-            conv_dw(256, 256, 1),
-            conv_dw(256, 512, 2),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 512, 1),
-            conv_dw(512, 1024, 2),
-            conv_dw(1024, 1024, 1),
-            nn.AvgPool2d(7),
+            nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
+                      kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
         )
-        self.fc = nn.Linear(1024, 185)
 
     def forward(self, x):
-        x = self.model(x)
-        x = x.view(-1, 1024)
-        x = self.fc(x)
+        return self.components(x)
+
+
+class MobileNet(nn.Module):
+    def __init__(self, alpha=0.25, shallow=False, num_classes=185):
+        super(MobileNet, self).__init__()
+        layers = [
+            nn.Conv2d(3, nearby_int(alpha * 32),
+                      kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(nearby_int(alpha * 32)),
+            nn.ReLU(inplace=True),
+
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 32), nearby_int(alpha * 64),
+                kernel_size=3, padding=1),
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 64), nearby_int(alpha * 128),
+                kernel_size=3, stride=2, padding=1),
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 128), nearby_int(alpha * 128),
+                kernel_size=3, padding=1),
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 128), nearby_int(alpha * 256),
+                kernel_size=3, stride=2, padding=1),
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 256), nearby_int(alpha * 256),
+                kernel_size=3, padding=1),
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 256), nearby_int(alpha * 512),
+                kernel_size=3, stride=2, padding=1)
+        ]
+        if not shallow:
+            # 5x 512->512 DW-separable convolutions
+            layers += [
+                DepthwiseSeparableFusedConv2d(
+                    nearby_int(alpha * 512), nearby_int(alpha * 512),
+                    kernel_size=3, padding=1),
+                DepthwiseSeparableFusedConv2d(
+                    nearby_int(alpha * 512), nearby_int(alpha * 512),
+                    kernel_size=3, padding=1),
+                DepthwiseSeparableFusedConv2d(
+                    nearby_int(alpha * 512), nearby_int(alpha * 512),
+                    kernel_size=3, padding=1),
+                DepthwiseSeparableFusedConv2d(
+                    nearby_int(alpha * 512), nearby_int(alpha * 512),
+                    kernel_size=3, padding=1),
+                DepthwiseSeparableFusedConv2d(
+                    nearby_int(alpha * 512), nearby_int(alpha * 512),
+                    kernel_size=3, padding=1),
+            ]
+        layers += [
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 512), nearby_int(alpha * 1024),
+                kernel_size=3, stride=2, padding=1),
+            # Paper specifies stride-2, but unchanged size.
+            # Assume its a typo and use stride-1 convolution
+            DepthwiseSeparableFusedConv2d(
+                nearby_int(alpha * 1024), nearby_int(alpha * 1024),
+                kernel_size=3, stride=1, padding=1)
+        ]
+        self.features = nn.Sequential(*layers)
+        self.avg_pool = nn.AdaptiveAvgPool2d(output_size=1)
+        self.classifier = nn.Linear(nearby_int(alpha * 1024), num_classes)
+
+    def forward(self, x):
+        x = self.features(x)
+        x = self.avg_pool(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
         return x
