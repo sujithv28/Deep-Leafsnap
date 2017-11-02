@@ -20,11 +20,11 @@ We noticed that our model failed to recognize specific classes of trees constant
 Our second model we trained was a MobileNet using the full 224x224 images. Despite the increase in image size, the MobileNet still uses significantly less compute and number of parameters than the constrained VGG-16 network. After only 10 epochs of training with no pretraining, MobileNet 1.0 was able to reach 93.4% Top-1 Accuracy and 99.3% Top-5 Accuracy.
 
 Next, we experimented with different widths and/or depths for MobileNet, as specified in the original paper. We trained the two smaller networks for 20 epochs of the training data.
-|                            | Top-1 Accuracy | Top-5 Accuracy | Number of Parameters |
-|----------------------------|:--------------:|:--------------:|:--------------------:|
-|     MobileNet 1.0 - 224    |      93.4%     |      99.3%     |     4.2 milllion     |  
-|     MobileNet .25 = 224    |      90.7%     |      99.0%     |      .5 million      |  
-| MobileNet Shallow .25 - 224|      xx.x%     |      xx.x%     |      .3 million      |  
+|                             | Top-1 Accuracy | Top-5 Accuracy | Number of Parameters |
+|----------------------------:|:--------------:|:--------------:|:--------------------:|
+|     MobileNet 1.0 (224)     |      93.4%     |      99.3%     |     4.2 milllion     |  
+|     MobileNet .25 (224)     |      90.7%     |      99.0%     |      .5 million      |  
+| MobileNet Shallow .25 (224) |      xx.x%     |      xx.x%     |      .3 million      |  
 
 We can see that rather than shrinking the input image to save computation time, it is preferable to reduce the model parameters and operate on the full image.
 
